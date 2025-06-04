@@ -1,47 +1,20 @@
 using UnityEngine;
 
-public class CameraController : MonoBehaviour
+public class FollowCamera : MonoBehaviour
 {
-    public Transform target;
-    public Vector3 offset = Vector3.zero; 
-    public float distance = 5.0f; 
-    public float height = 2.0f; 
-    public float rotationSpeed = 5.0f; 
-    public float zoomSpeed = 2.0f;
-    public float minDistance = 3.0f;
-    public float maxDistance = 10.0f;
-
-    private float currentDistance;
-    private float currentHeight;
-
-    void Start()
-    {
-        currentDistance = distance;
-        currentHeight = height;
-    }
+    public Transform target;       // Der Charakter, dem die Kamera folgt
+    public Vector3 offset = new Vector3(0, 2, -5); // Höhe und Abstand hinter dem Charakter
+    public float smoothSpeed = 0.125f;
 
     void LateUpdate()
     {
-        if (target == null)
-        {
-            Debug.LogWarning("Target nicht ausgewählt.");
-            return;
-        }
+        // Zielposition für die Kamera berechnen
+        Vector3 desiredPosition = target.position + target.rotation * offset;
 
-/*
-        if (Input.GetMouseButton(0))
-        {
-            float horizontalRotation = Input.GetAxis("Mouse X") * rotationSpeed;
-            transform.RotateAround(target.position, Vector3.up, horizontalRotation);
-        }
-*/
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
-        currentDistance = Mathf.Clamp(currentDistance - scroll * zoomSpeed, minDistance, maxDistance);
+        // Sanft zur Zielposition bewegen
+        transform.position = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
 
-        Vector3 diff = target.position - transform.position;
-        Vector3 camPos = target.position - diff.normalized * currentDistance;
-        camPos.y = target.position.y + currentHeight;
-        transform.position = camPos;
-        transform.LookAt(target.position + offset);
+        // Kamera auf den Charakter ausrichten
+        transform.LookAt(target.position + Vector3.up * 1.5f);
     }
 }
