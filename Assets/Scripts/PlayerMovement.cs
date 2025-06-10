@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
-    public float mouseSensitivity = 1000f;
+    public float mouseSensitivity = 250f;
     private float rotationY = 0f;
 
     public float moveSpeed = 5f;
@@ -40,8 +40,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // Debugging
-        Debug.DrawRay(groundCheck.position, Vector3.down * 0.2f, Color.red);
-        Debug.Log("GroundCheck pos: " + groundCheck.position);
+        //Debug.DrawRay(groundCheck.position, Vector3.down * 0.2f, Color.red);
     }
 
     void FixedUpdate()
