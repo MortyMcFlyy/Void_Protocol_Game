@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "Spieleprog HA.sln"
+    "dotnet.defaultSolution": "Void_Protocol_Game.sln"
 }
