@@ -3,9 +3,11 @@ using UnityEngine;
 public class DynamicCamera : MonoBehaviour
 {
     public Transform target;
+    Vector3 targetPosition;
     public Vector3 thirdPersonOffset = new Vector3(0.5f, 0.5f, -1f);
     public Vector3 firstPersonOffset = new Vector3(0f, 0.3f, 0.1f);
     public Vector3 lookOffset = new Vector3(0.5f, 0.5f, 0f);
+    public float lookAtHeight = 0.5f;
 
     public float smoothSpeed = 0.2f;
     public float sphereRadius = 0.3f;
@@ -19,8 +21,11 @@ public class DynamicCamera : MonoBehaviour
 
     void LateUpdate()
     {
-        Vector3 desiredThirdPerson = target.position + target.rotation * thirdPersonOffset;
-        Vector3 lookTargetThirdPerson = target.position + target.rotation * lookOffset;
+        targetPosition = target.position;
+        targetPosition.y = target.position.y + lookAtHeight;
+        
+        Vector3 desiredThirdPerson = targetPosition + target.rotation * thirdPersonOffset;
+        Vector3 lookTargetThirdPerson = targetPosition + target.rotation * lookOffset;
 
         Vector3 direction = desiredThirdPerson - lookTargetThirdPerson;
         float maxDistance = direction.magnitude;
@@ -50,7 +55,7 @@ public class DynamicCamera : MonoBehaviour
             else
             {
                 // Bleib in First-Person
-                cameraPosition = target.position + target.rotation * firstPersonOffset;
+                cameraPosition = targetPosition + target.rotation * firstPersonOffset;
                 lookTarget = cameraPosition + target.forward * 10f + Vector3.up * 0.5f;
             }
         }
@@ -60,7 +65,7 @@ public class DynamicCamera : MonoBehaviour
             {
                 // Zu wenig Platz → in First-Person wechseln
                 inFirstPerson = true;
-                cameraPosition = target.position + target.rotation * firstPersonOffset;
+                cameraPosition = targetPosition + target.rotation * firstPersonOffset;
                 lookTarget = cameraPosition + target.forward * 10f + Vector3.up * 0.5f;
             }
             else if (obstacleDetected)
@@ -79,8 +84,8 @@ public class DynamicCamera : MonoBehaviour
     void OnDrawGizmosSelected()
     {
         if (!target) return;
-        Vector3 lookTarget = target.position + target.rotation * lookOffset;
-        Vector3 desiredPos = target.position + target.rotation * thirdPersonOffset;
+        Vector3 lookTarget = targetPosition + target.rotation * lookOffset;
+        Vector3 desiredPos = targetPosition + target.rotation * thirdPersonOffset;
         Gizmos.color = Color.red;
         Gizmos.DrawLine(lookTarget, desiredPos);
         Gizmos.DrawWireSphere(desiredPos, sphereRadius);
