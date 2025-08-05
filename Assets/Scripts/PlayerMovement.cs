@@ -16,8 +16,11 @@ public class PlayerController : MonoBehaviour
     private bool jumpRequested = false;
     private Vector3 movementInput = Vector3.zero;
 
+    private Animator animator;
+
     void Start()
     {
+        animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
         groundCheck.localPosition = new Vector3(0, -0.9f, 0); // Setze die Position des GroundChecks relativ zum Spieler
     }
@@ -39,6 +42,24 @@ public class PlayerController : MonoBehaviour
             jumpRequested = true;
         }
 
+        //Animationsstatus aktualisieren
+
+        animator.SetBool("isGrounded", IsGrounded());
+
+        float moveMagnitude = new Vector2(moveX, moveZ).magnitude;
+        animator.SetFloat("Speed", moveMagnitude);
+
+        // Sprung starten
+        if (Input.GetButtonDown("Jump") && IsGrounded())
+        {
+            jumpRequested = true;
+            animator.SetBool("isJumping", true);
+        }
+        else
+        {
+            animator.SetBool("isJumping", false);
+        }
+        
         // Debugging
         //Debug.DrawRay(groundCheck.position, Vector3.down * 0.2f, Color.red);
     }
@@ -61,6 +82,17 @@ public class PlayerController : MonoBehaviour
 
     bool IsGrounded()
     {
-        return Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
+        bool grounded = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
+
+        if (grounded)
+        {
+            animator.SetBool("isGrounded", true);
+        }
+        else
+        {
+            animator.SetBool("isGrounded", false);
+        }
+        return grounded;
     }
+
 }
