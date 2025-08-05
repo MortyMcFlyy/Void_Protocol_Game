@@ -27,10 +27,6 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        // Mausrotation (nicht physikbasiert → bleibt in Update)
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        transform.Rotate(Vector3.up * mouseX);
-
         // Bewegungseingaben erfassen
         float moveX = Input.GetAxis("Horizontal");
         float moveZ = Input.GetAxis("Vertical");
@@ -66,19 +62,19 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        // Bewegung anwenden
-        Vector3 velocity = rb.linearVelocity;
-        velocity.x = movementInput.x;
-        velocity.z = movementInput.z;
-        rb.linearVelocity = velocity;
 
-        // Springen ausführen
+        // Bewegung sanft per Physik
+        Vector3 targetPosition = rb.position + movementInput * Time.fixedDeltaTime;
+        rb.MovePosition(targetPosition);
+
+        // Springen
         if (jumpRequested)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             jumpRequested = false;
         }
     }
+
 
     bool IsGrounded()
     {

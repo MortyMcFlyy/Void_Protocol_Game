@@ -3,29 +3,52 @@ using UnityEngine;
 public class DynamicCamera : MonoBehaviour
 {
     public Transform target;
-    Vector3 targetPosition;
+
+    [Header("Offsets")]
     public Vector3 thirdPersonOffset = new Vector3(0.5f, 0.5f, -1f);
     public Vector3 firstPersonOffset = new Vector3(0f, 0.3f, 0.1f);
     public Vector3 lookOffset = new Vector3(0.5f, 0.5f, 0f);
     public float lookAtHeight = 0.5f;
 
+    [Header("Smoothness & Collision")]
     public float smoothSpeed = 0.2f;
     public float sphereRadius = 0.3f;
     public float minDistance = 0.2f;
     public float firstPersonThreshold = 0.8f;
+    public float thirdPersonRestoreThreshold = 1.5f;
     public LayerMask obstacleMask;
 
-    private bool inFirstPerson = false;
-    public float thirdPersonRestoreThreshold = 1.5f; // z. B. größer als firstPersonThreshold
+    [Header("Mouse Settings")]
+    public float mouseSensitivity = 2f;
+    public float pitchMin = -30f;
+    public float pitchMax = 70f;
 
+    private bool inFirstPerson = false;
+    private float yaw = 0f;
+    private float pitch = 15f;
+
+    private Vector3 targetPosition;
+
+    void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
 
     void LateUpdate()
     {
+        // Mausrotation erfassen
+        yaw += Input.GetAxis("Mouse X") * mouseSensitivity;
+        pitch -= Input.GetAxis("Mouse Y") * mouseSensitivity;
+        pitch = Mathf.Clamp(pitch, pitchMin, pitchMax);
+
+        // Zielposition vorbereiten
         targetPosition = target.position;
-        targetPosition.y = target.position.y + lookAtHeight;
-        
-        Vector3 desiredThirdPerson = targetPosition + target.rotation * thirdPersonOffset;
-        Vector3 lookTargetThirdPerson = targetPosition + target.rotation * lookOffset;
+        targetPosition.y += lookAtHeight;
+
+        Quaternion cameraRotation = Quaternion.Euler(pitch, yaw, 0f);
+        Vector3 desiredThirdPerson = targetPosition + cameraRotation * thirdPersonOffset;
+        Vector3 lookTargetThirdPerson = targetPosition + cameraRotation * lookOffset;
 
         Vector3 direction = desiredThirdPerson - lookTargetThirdPerson;
         float maxDistance = direction.magnitude;
@@ -36,7 +59,6 @@ public class DynamicCamera : MonoBehaviour
         bool obstacleDetected = false;
         float actualDistance = maxDistance;
 
-        // SphereCast nur, wenn Richtung gültig
         if (direction.magnitude > 0.01f && Physics.SphereCast(lookTargetThirdPerson, sphereRadius, direction.normalized, out RaycastHit hit, maxDistance, obstacleMask))
         {
             obstacleDetected = true;
@@ -48,14 +70,12 @@ public class DynamicCamera : MonoBehaviour
         {
             if (!obstacleDetected || actualDistance >= thirdPersonRestoreThreshold)
             {
-                // Genug Platz → zurück zu Third-Person
                 inFirstPerson = false;
                 cameraPosition = desiredThirdPerson;
             }
             else
             {
-                // Bleib in First-Person
-                cameraPosition = targetPosition + target.rotation * firstPersonOffset;
+                cameraPosition = target.position + target.rotation * firstPersonOffset;
                 lookTarget = cameraPosition + target.forward * 10f + Vector3.up * 0.5f;
             }
         }
@@ -63,29 +83,36 @@ public class DynamicCamera : MonoBehaviour
         {
             if (obstacleDetected && actualDistance < firstPersonThreshold)
             {
-                // Zu wenig Platz → in First-Person wechseln
                 inFirstPerson = true;
-                cameraPosition = targetPosition + target.rotation * firstPersonOffset;
+                cameraPosition = target.position + target.rotation * firstPersonOffset;
                 lookTarget = cameraPosition + target.forward * 10f + Vector3.up * 0.5f;
             }
             else if (obstacleDetected)
             {
-                // Kamera näher an Wand positionieren
                 float safeDistance = Mathf.Max(minDistance, actualDistance - 0.05f);
                 cameraPosition = lookTargetThirdPerson + direction.normalized * safeDistance;
             }
         }
 
-        // Kamera bewegen & ausrichten
+        // Kamera bewegen und ausrichten
         transform.position = Vector3.Lerp(transform.position, cameraPosition, smoothSpeed);
         transform.LookAt(lookTarget);
+
+        // Charakter horizontal zur Kamera ausrichten
+        Vector3 lookDirection = transform.forward;
+        lookDirection.y = 0f;
+        if (lookDirection.sqrMagnitude > 0.001f)
+        {
+            target.forward = lookDirection.normalized;
+        }
+
     }
 
     void OnDrawGizmosSelected()
     {
         if (!target) return;
-        Vector3 lookTarget = targetPosition + target.rotation * lookOffset;
-        Vector3 desiredPos = targetPosition + target.rotation * thirdPersonOffset;
+        Vector3 lookTarget = targetPosition + Quaternion.Euler(pitch, yaw, 0f) * lookOffset;
+        Vector3 desiredPos = targetPosition + Quaternion.Euler(pitch, yaw, 0f) * thirdPersonOffset;
         Gizmos.color = Color.red;
         Gizmos.DrawLine(lookTarget, desiredPos);
         Gizmos.DrawWireSphere(desiredPos, sphereRadius);
