@@ -35,7 +35,7 @@ public class DynamicCamera : MonoBehaviour
         Cursor.visible = false;
     }
 
-    void LateUpdate()
+    void FixedUpdate()
     {
         // Mausrotation erfassen
         yaw += Input.GetAxis("Mouse X") * mouseSensitivity;
