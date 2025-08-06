@@ -4,6 +4,8 @@ using System.Collections;
 [RequireComponent(typeof(Rigidbody))]
 public class GrapplingHook : MonoBehaviour
 {
+    private bool isUnlocked = false;
+
     public Transform grappleOrigin; // z. B. rechte Hand oder Waffe
     public LineRenderer lineRenderer;
 
@@ -26,6 +28,11 @@ public class GrapplingHook : MonoBehaviour
 
     void Update()
     {
+        if (!isUnlocked)
+        {
+            return;
+        }
+        
         if (Input.GetKeyDown(grappleKey))
         {
             Debug.Log("F gedrückt!");
@@ -101,5 +108,11 @@ public class GrapplingHook : MonoBehaviour
         isGrappling = false;
         isShooting = false;
         lineRenderer.enabled = false;
+    }
+
+    public void UnlockGrapple()
+    {
+        isUnlocked = true;
+        Debug.Log("Grappling Hook wurde freigeschaltet!");
     }
 }

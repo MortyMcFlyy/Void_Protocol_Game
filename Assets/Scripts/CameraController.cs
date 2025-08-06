@@ -6,7 +6,6 @@ public class DynamicCamera : MonoBehaviour
 
     [Header("Offsets")]
     public Vector3 thirdPersonOffset = new Vector3(0.5f, 0.5f, -1f);
-    public Vector3 firstPersonOffset = new Vector3(0f, 0.3f, 0.1f);
     public Vector3 lookOffset = new Vector3(0.5f, 0.5f, 0f);
     public float lookAtHeight = 0.5f;
 
@@ -14,8 +13,6 @@ public class DynamicCamera : MonoBehaviour
     public float smoothSpeed = 0.2f;
     public float sphereRadius = 0.3f;
     public float minDistance = 0.2f;
-    public float firstPersonThreshold = 0.8f;
-    public float thirdPersonRestoreThreshold = 1.5f;
     public LayerMask obstacleMask;
 
     [Header("Mouse Settings")]
@@ -23,7 +20,6 @@ public class DynamicCamera : MonoBehaviour
     public float pitchMin = -30f;
     public float pitchMax = 70f;
 
-    private bool inFirstPerson = false;
     private float yaw = 0f;
     private float pitch = 15f;
 
@@ -47,55 +43,23 @@ public class DynamicCamera : MonoBehaviour
         targetPosition.y += lookAtHeight;
 
         Quaternion cameraRotation = Quaternion.Euler(pitch, yaw, 0f);
-        Vector3 desiredThirdPerson = targetPosition + cameraRotation * thirdPersonOffset;
-        Vector3 lookTargetThirdPerson = targetPosition + cameraRotation * lookOffset;
+        Vector3 desiredCameraPosition = targetPosition + cameraRotation * thirdPersonOffset;
+        Vector3 lookTarget = targetPosition + cameraRotation * lookOffset;
 
-        Vector3 direction = desiredThirdPerson - lookTargetThirdPerson;
+        Vector3 direction = desiredCameraPosition - lookTarget;
         float maxDistance = direction.magnitude;
 
-        Vector3 cameraPosition = desiredThirdPerson;
-        Vector3 lookTarget = lookTargetThirdPerson;
+        Vector3 finalCameraPosition = desiredCameraPosition;
 
-        bool obstacleDetected = false;
-        float actualDistance = maxDistance;
-
-        if (direction.magnitude > 0.01f && Physics.SphereCast(lookTargetThirdPerson, sphereRadius, direction.normalized, out RaycastHit hit, maxDistance, obstacleMask))
+        // Kollisionsprüfung per SphereCast
+        if (direction.magnitude > 0.01f && Physics.SphereCast(lookTarget, sphereRadius, direction.normalized, out RaycastHit hit, maxDistance, obstacleMask))
         {
-            obstacleDetected = true;
-            actualDistance = hit.distance;
-        }
-
-        // Perspektivwechsel-Logik
-        if (inFirstPerson)
-        {
-            if (!obstacleDetected || actualDistance >= thirdPersonRestoreThreshold)
-            {
-                inFirstPerson = false;
-                cameraPosition = desiredThirdPerson;
-            }
-            else
-            {
-                cameraPosition = target.position + target.rotation * firstPersonOffset;
-                lookTarget = cameraPosition + target.forward * 10f + Vector3.up * 0.5f;
-            }
-        }
-        else
-        {
-            if (obstacleDetected && actualDistance < firstPersonThreshold)
-            {
-                inFirstPerson = true;
-                cameraPosition = target.position + target.rotation * firstPersonOffset;
-                lookTarget = cameraPosition + target.forward * 10f + Vector3.up * 0.5f;
-            }
-            else if (obstacleDetected)
-            {
-                float safeDistance = Mathf.Max(minDistance, actualDistance - 0.05f);
-                cameraPosition = lookTargetThirdPerson + direction.normalized * safeDistance;
-            }
+            float safeDistance = Mathf.Max(minDistance, hit.distance - 0.05f);
+            finalCameraPosition = lookTarget + direction.normalized * safeDistance;
         }
 
         // Kamera bewegen und ausrichten
-        transform.position = Vector3.Lerp(transform.position, cameraPosition, smoothSpeed);
+        transform.position = Vector3.Lerp(transform.position, finalCameraPosition, smoothSpeed);
         transform.LookAt(lookTarget);
 
         // Charakter horizontal zur Kamera ausrichten
@@ -105,14 +69,13 @@ public class DynamicCamera : MonoBehaviour
         {
             target.forward = lookDirection.normalized;
         }
-
     }
 
     void OnDrawGizmosSelected()
     {
         if (!target) return;
-        Vector3 lookTarget = targetPosition + Quaternion.Euler(pitch, yaw, 0f) * lookOffset;
-        Vector3 desiredPos = targetPosition + Quaternion.Euler(pitch, yaw, 0f) * thirdPersonOffset;
+        Vector3 lookTarget = target.position + Vector3.up * lookAtHeight + Quaternion.Euler(pitch, yaw, 0f) * lookOffset;
+        Vector3 desiredPos = target.position + Vector3.up * lookAtHeight + Quaternion.Euler(pitch, yaw, 0f) * thirdPersonOffset;
         Gizmos.color = Color.red;
         Gizmos.DrawLine(lookTarget, desiredPos);
         Gizmos.DrawWireSphere(desiredPos, sphereRadius);
