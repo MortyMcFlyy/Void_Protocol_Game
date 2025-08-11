@@ -4,7 +4,6 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float mouseSensitivity = 250f;
-    private float rotationY = 0f;
 
     public float moveSpeed = 5f;
     public float jumpForce = 5f;
@@ -15,6 +14,8 @@ public class PlayerController : MonoBehaviour
     private Rigidbody rb;
     private bool jumpRequested = false;
     private Vector3 movementInput = Vector3.zero;
+    private Vector3 conveyorVelocity = Vector3.zero;
+
 
     private Animator animator;
 
@@ -63,9 +64,10 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
 
-        // Bewegung sanft per Physik
-        Vector3 targetPosition = rb.position + movementInput * Time.fixedDeltaTime;
-        rb.MovePosition(targetPosition);
+        Vector3 baseVelocity = movementInput;
+        Vector3 finalVelocity = baseVelocity + conveyorVelocity;
+        finalVelocity.y = rb.linearVelocity.y;
+        rb.linearVelocity = finalVelocity;
 
         // Springen
         if (jumpRequested)
@@ -89,6 +91,11 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("isGrounded", false);
         }
         return grounded;
+    }
+
+    public void SetConveyorVelocity(Vector3 velocity)
+    {
+        conveyorVelocity = velocity;
     }
 
 }
