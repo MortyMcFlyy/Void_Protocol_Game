@@ -56,6 +56,7 @@ public class GrapplingHook : MonoBehaviour
         if (isGrappling)
         {
             Vector3 dir = (grapplePoint - transform.position).normalized;
+            dir.y *= 0.3f;
             rb.AddForce(dir * grapplePullSpeed, ForceMode.Acceleration);
 
             if (Vector3.Distance(transform.position, grapplePoint) < 2f)

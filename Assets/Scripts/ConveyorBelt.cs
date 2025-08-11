@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ConveyorBelt : MonoBehaviour
 {
-    public Vector3 conveyorVelocity = new Vector3(0, 0, -2f); // Richtung & Geschwindigkeit
+    public Vector3 conveyorVelocity = new Vector3(-10, 0, 0f); // Richtung & Geschwindigkeit
 
     private void OnTriggerStay(Collider other)
     {
@@ -27,6 +27,12 @@ public class ConveyorBelt : MonoBehaviour
                 player.SetConveyorVelocity(Vector3.zero);
             }
         }
+    }
+
+    public void ToggleDirection()
+    {
+        conveyorVelocity = new Vector3(5, 0, 0); // Richtung umkehren
+        Debug.Log("Laufband-Richtung geändert: " + conveyorVelocity);
     }
 }
 
