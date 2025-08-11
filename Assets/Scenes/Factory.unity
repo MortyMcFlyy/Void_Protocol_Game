@@ -147420,6 +147420,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 1
+  grapple: {fileID: 2053179708}
 --- !u!54 &2053179705
 Rigidbody:
   m_ObjectHideFlags: 0

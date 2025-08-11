@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour
     public Transform groundCheck;
     public float groundCheckRadius = 0.2f;
     public LayerMask groundLayer;
+    public GrapplingHook grapple;
+
 
     private Rigidbody rb;
     private bool jumpRequested = false;
@@ -64,10 +66,16 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
 
-        Vector3 baseVelocity = movementInput;
-        Vector3 finalVelocity = baseVelocity + conveyorVelocity;
-        finalVelocity.y = rb.linearVelocity.y;
-        rb.linearVelocity = finalVelocity;
+        Vector3 currentVel = rb.linearVelocity;
+
+        if (!grapple.IsGrappling())
+        {
+            Vector3 desiredXZ = movementInput + conveyorVelocity;
+            currentVel.x = desiredXZ.x;
+            currentVel.z = desiredXZ.z;
+        }
+
+        rb.linearVelocity = currentVel;
 
         // Springen
         if (jumpRequested)
