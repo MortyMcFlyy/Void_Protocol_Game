@@ -11,6 +11,9 @@ public class PlayerController : MonoBehaviour
     public float groundCheckRadius = 0.2f;
     public LayerMask groundLayer;
     public GrapplingHook grapple;
+    public Transform spawnPoint;
+    public bool canMove = true;
+
 
 
     private Rigidbody rb;
@@ -30,6 +33,8 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (!canMove) return;
+
         // Bewegungseingaben erfassen
         float moveX = Input.GetAxis("Horizontal");
         float moveZ = Input.GetAxis("Vertical");
@@ -65,6 +70,7 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (!canMove) return;
 
         Vector3 currentVel = rb.linearVelocity;
 
@@ -104,6 +110,17 @@ public class PlayerController : MonoBehaviour
     public void SetConveyorVelocity(Vector3 velocity)
     {
         conveyorVelocity = velocity;
+    }
+
+    public void Die()
+    {
+        Debug.Log("Player ist gestorben!");
+
+        rb.linearVelocity = Vector3.zero;
+        transform.position = spawnPoint.position;
+        transform.rotation = spawnPoint.rotation;
+
+        canMove = true; // Bewegung wieder aktivieren
     }
 
 }
