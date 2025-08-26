@@ -163,12 +163,7 @@ public class PatrollingEnemy : MonoBehaviour
             pc.Die(); // Teleportiert ihn zum Spawn oder macht was sonst vorgesehen ist
         }
 
-        if (rb != null)
-        {
-            rb.isKinematic = false; // Physik wieder aktivieren
-            rb.detectCollisions = true;
-            rb.freezeRotation = true;
-        }
+        
         playerTarget.SetParent(null);
         playerDetected = false;
     }

@@ -1,21 +1,29 @@
 using UnityEngine;
+using System.Collections;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
+    [Header("Movement Settings")]
     public float mouseSensitivity = 250f;
-
     public float moveSpeed = 5f;
     public float jumpForce = 5f;
     public Transform groundCheck;
     public float groundCheckRadius = 0.2f;
     public LayerMask groundLayer;
     public GrapplingHook grapple;
-    public Transform spawnPoint;
+
+    [Header("Respawn Settings")]
+    public Transform spawnPoint;         
+    public float respawnDelay = 1f;      
+    public LayerMask killZone;           
     public bool canMove = true;
 
+    [Header("Fade Settings")]
+    public CanvasGroup fadePanel;        
+    public float fadeDuration = 1f;      
 
-
+    private bool isDead = false;         
     private Rigidbody rb;
     private bool jumpRequested = false;
     private Vector3 movementInput = Vector3.zero;
@@ -29,6 +37,10 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
         groundCheck.localPosition = new Vector3(0, -0.9f, 0); // Setze die Position des GroundChecks relativ zum Spieler
+        if (fadePanel != null)
+        {
+            fadePanel.alpha = 0f;
+        }
     }
 
     void Update()
@@ -112,15 +124,84 @@ public class PlayerController : MonoBehaviour
         conveyorVelocity = velocity;
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (((1 << collision.gameObject.layer) & killZone) != 0 && !isDead)
+        {
+            Die();
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (((1 << other.gameObject.layer) & killZone) != 0 && !isDead)
+        {
+            Die();
+        }
+    }
+
     public void Die()
     {
-        Debug.Log("Player ist gestorben!");
+        if (isDead) return;
+        isDead = true;
 
-        rb.linearVelocity = Vector3.zero;
+        Debug.Log("💀 Player ist gestorben!");
+
+        // Coroutine statt Invoke, damit wir auch den Fade einbauen können
+        StartCoroutine(FadeAndRespawn());
+    }
+
+    private IEnumerator FadeAndRespawn()
+    {
+        // Bildschirm zu schwarz
+        yield return StartCoroutine(Fade(0f, 1f));
+
+        // Warten während Schwarz
+        yield return new WaitForSeconds(respawnDelay);
+
+        // Respawn durchführen
+        Respawn();
+
+        // Schwarz wieder ausblenden
+        yield return StartCoroutine(Fade(1f, 0f));
+
+        isDead = false;
+    }
+
+    private void Respawn()
+    {
         transform.position = spawnPoint.position;
         transform.rotation = spawnPoint.rotation;
 
-        canMove = true; // Bewegung wieder aktivieren
+        // Falls der Spieler einen Rigidbody hat, Bewegungen zurücksetzen
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+            rb.detectCollisions = true;
+            rb.freezeRotation = true;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+        canMove = true;
+
+
+        Debug.Log("🔄 Player respawned!");
     }
+
+    private IEnumerator Fade(float start, float end)
+    {
+        if (fadePanel == null) yield break;
+
+        float elapsed = 0f;
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            fadePanel.alpha = Mathf.Lerp(start, end, elapsed / fadeDuration);
+            yield return null;
+        }
+        fadePanel.alpha = end;
+    }
+
 
 }
