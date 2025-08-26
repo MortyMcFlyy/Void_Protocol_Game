@@ -180,8 +180,7 @@ public class PlayerController : MonoBehaviour
             rb.isKinematic = false;
             rb.detectCollisions = true;
             rb.freezeRotation = true;
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
+            
         }
         canMove = true;
 
