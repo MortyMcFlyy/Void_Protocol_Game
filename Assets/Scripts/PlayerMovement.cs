@@ -21,7 +21,8 @@ public class PlayerController : MonoBehaviour
 
     [Header("Fade Settings")]
     public CanvasGroup fadePanel;        
-    public float fadeDuration = 1f;      
+    public float fadeDuration = 1f;
+    public bool isTeleporting = false;      
 
     private bool isDead = false;         
     private Rigidbody rb;
@@ -91,9 +92,10 @@ public class PlayerController : MonoBehaviour
             Vector3 desiredXZ = movementInput + conveyorVelocity;
             currentVel.x = desiredXZ.x;
             currentVel.z = desiredXZ.z;
+            rb.linearVelocity = currentVel;
+
         }
 
-        rb.linearVelocity = currentVel;
 
         // Springen
         if (jumpRequested)
@@ -188,7 +190,7 @@ public class PlayerController : MonoBehaviour
         Debug.Log("🔄 Player respawned!");
     }
 
-    private IEnumerator Fade(float start, float end)
+    public IEnumerator Fade(float start, float end)
     {
         if (fadePanel == null) yield break;
 
@@ -202,5 +204,10 @@ public class PlayerController : MonoBehaviour
         fadePanel.alpha = end;
     }
 
+    public void SetSpawnPoint(Transform t)
+    {
+        if (t == null) return;
+        spawnPoint = t;
+    }
 
 }

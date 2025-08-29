@@ -117,7 +117,7 @@ public class PatrollingEnemy : MonoBehaviour
         Quaternion startRot = playerTarget.rotation;
 
         // Bestimme den Punkt, wo der Spieler in den Händen des Gegners landen soll
-        Vector3 targetPos = transform.position;
+        Vector3 targetPos = grabPoint.position;
         //grabPoint.rotation = grabPoint.rotation * Quaternion.Euler(90f, 0, 0); // 90° Rotation
 
         if (rb != null)
@@ -145,13 +145,6 @@ public class PatrollingEnemy : MonoBehaviour
 
             yield return null;
         }
-
-        // Endposition setzen und Physik deaktivieren
-        playerTarget.position = grabPoint.position;
-        playerTarget.rotation = grabPoint.rotation;
-        playerTarget.SetParent(grabPoint);
-
-        
 
         // Kill-Animation starten
         animator.SetTrigger("Kill");

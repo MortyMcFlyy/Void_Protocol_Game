@@ -22,6 +22,8 @@ public class DynamicCamera : MonoBehaviour
 
     private float yaw = 0f;
     private float pitch = 15f;
+    private Vector3 lookTarget;
+    private Vector3 finalCameraPosition;
 
     private Vector3 targetPosition;
 
@@ -31,25 +33,28 @@ public class DynamicCamera : MonoBehaviour
         Cursor.visible = false;
     }
 
-    void FixedUpdate()
+    void Update()
     {
         // Mausrotation erfassen
         yaw += Input.GetAxis("Mouse X") * mouseSensitivity;
         pitch -= Input.GetAxis("Mouse Y") * mouseSensitivity;
         pitch = Mathf.Clamp(pitch, pitchMin, pitchMax);
+    }
 
+    void LateUpdate()
+    {
         // Zielposition vorbereiten
         targetPosition = target.position;
         targetPosition.y += lookAtHeight;
 
         Quaternion cameraRotation = Quaternion.Euler(pitch, yaw, 0f);
         Vector3 desiredCameraPosition = targetPosition + cameraRotation * thirdPersonOffset;
-        Vector3 lookTarget = targetPosition + cameraRotation * lookOffset;
+        lookTarget = targetPosition + cameraRotation * lookOffset;
 
         Vector3 direction = desiredCameraPosition - lookTarget;
         float maxDistance = direction.magnitude;
 
-        Vector3 finalCameraPosition = desiredCameraPosition;
+        finalCameraPosition = desiredCameraPosition;
 
         // Kollisionsprüfung per SphereCast
         if (direction.magnitude > 0.01f && Physics.SphereCast(lookTarget, sphereRadius, direction.normalized, out RaycastHit hit, maxDistance, obstacleMask))
@@ -59,7 +64,8 @@ public class DynamicCamera : MonoBehaviour
         }
 
         // Kamera bewegen und ausrichten
-        transform.position = Vector3.Lerp(transform.position, finalCameraPosition, smoothSpeed);
+        //transform.position = Vector3.Lerp(transform.position, finalCameraPosition, smoothSpeed);
+        transform.position = finalCameraPosition;
         transform.LookAt(lookTarget);
 
         // Charakter horizontal zur Kamera ausrichten

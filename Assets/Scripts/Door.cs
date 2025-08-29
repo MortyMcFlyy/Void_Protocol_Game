@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class Door : MonoBehaviour, IInteractable
 {
@@ -10,6 +11,12 @@ public class Door : MonoBehaviour, IInteractable
     private bool isMoving = false;
     private Vector3 closedPosition;
     private Vector3 openPosition;
+
+    // NEU: Öffentliche Properties zum Abfragen
+    public bool IsOpen => isOpen;
+    public bool IsMoving => isMoving;
+    public float OpenSpeed => openSpeed;              // falls extern die Dauer berechnet werden soll
+    public Transform DoorTransform => doorToOpen;     // falls Position gebraucht wird
 
     private void Start()
     {
@@ -32,7 +39,7 @@ public class Door : MonoBehaviour, IInteractable
     public void Interact()
     {
         if (isOpen || isMoving || doorToOpen == null) return;
-        doorToOpen.gameObject.SetActive(true); // falls deaktiviert
+        doorToOpen.gameObject.SetActive(true);
         StartCoroutine(OpenDoor());
     }
 
@@ -42,8 +49,7 @@ public class Door : MonoBehaviour, IInteractable
         StartCoroutine(OpenDoor());
     }
 
-
-    private System.Collections.IEnumerator OpenDoor()
+    private IEnumerator OpenDoor()
     {
         isMoving = true;
 
@@ -62,5 +68,13 @@ public class Door : MonoBehaviour, IInteractable
         isOpen = true;
         isMoving = false;
     }
-}
 
+    // Optional: Sofort auf offen setzen (falls du mal brauchst)
+    public void ForceOpenImmediate()
+    {
+        if (doorToOpen == null) return;
+        doorToOpen.position = openPosition;
+        isOpen = true;
+        isMoving = false;
+    }
+}
