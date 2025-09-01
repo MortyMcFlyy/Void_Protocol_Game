@@ -8,6 +8,8 @@ public class GrapplingHook : MonoBehaviour
 
     public Transform grappleOrigin; // z. B. rechte Hand oder Waffe
     public LineRenderer lineRenderer;
+    public Animator animator;
+
 
     public float maxGrappleDistance = 30f;
     public float grapplePullSpeed = 10f;
@@ -20,9 +22,13 @@ public class GrapplingHook : MonoBehaviour
     private bool isGrappling = false;
     private bool isShooting = false;
 
+    static readonly int HashIsGrappling = Animator.StringToHash("IsGrappling");
+    static readonly int HashShoot = Animator.StringToHash("GrappleShoot");
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
         lineRenderer.enabled = false;
     }
 
@@ -119,5 +125,23 @@ public class GrapplingHook : MonoBehaviour
     public bool IsGrappling()
     {
         return isGrappling;
+    }
+
+    void StartShootAnimation()
+    {
+        if (animator)
+            animator.SetTrigger(HashShoot);
+    }
+
+    void BeginPullAnimation()
+    {
+        if (animator)
+            animator.SetBool(HashIsGrappling, true);
+    }
+
+    void StopGrappleAnimation()
+    {
+        if (animator)
+            animator.SetBool(HashIsGrappling, false);
     }
 }
