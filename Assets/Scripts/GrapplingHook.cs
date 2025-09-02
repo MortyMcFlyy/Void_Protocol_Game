@@ -23,7 +23,7 @@ public class GrapplingHook : MonoBehaviour
     private bool isShooting = false;
 
     static readonly int HashIsGrappling = Animator.StringToHash("IsGrappling");
-    static readonly int HashShoot = Animator.StringToHash("GrappleShoot");
+    static readonly int HashIsShooting = Animator.StringToHash("IsShooting");
 
     void Start()
     {
@@ -42,11 +42,13 @@ public class GrapplingHook : MonoBehaviour
         if (Input.GetKeyDown(grappleKey))
         {
             Debug.Log("F gedrückt!");
+            BeginShootAnimation();
             TryStartGrapple();
         }
 
         if (Input.GetKeyUp(grappleKey))
         {
+            StopShootAnimation();
             StopGrapple();
         }
 
@@ -83,6 +85,7 @@ public class GrapplingHook : MonoBehaviour
         else
         {
             Debug.Log("Kein Ziel gefunden.");
+            
         }
     }
 
@@ -107,6 +110,7 @@ public class GrapplingHook : MonoBehaviour
         // Nach dem "Schuss" → Grapple aktivieren
         isShooting = false;
         isGrappling = true;
+        BeginPullAnimation();
     }
 
     void StopGrapple()
@@ -114,6 +118,7 @@ public class GrapplingHook : MonoBehaviour
         isGrappling = false;
         isShooting = false;
         lineRenderer.enabled = false;
+        StopGrappleAnimation();
     }
 
     public void UnlockGrapple()
@@ -127,10 +132,16 @@ public class GrapplingHook : MonoBehaviour
         return isGrappling;
     }
 
-    void StartShootAnimation()
+    void BeginShootAnimation()
     {
         if (animator)
-            animator.SetTrigger(HashShoot);
+            animator.SetBool(HashIsShooting, true);
+    }
+
+    void StopShootAnimation()
+    {
+        if (animator)
+            animator.SetBool(HashIsShooting, false);
     }
 
     void BeginPullAnimation()
