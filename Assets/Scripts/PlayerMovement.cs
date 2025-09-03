@@ -153,6 +153,11 @@ public class PlayerController : MonoBehaviour
         StartCoroutine(FadeAndRespawn());
     }
 
+    public bool IsDead()
+    {
+        return isDead;
+    }
+
     private IEnumerator FadeAndRespawn()
     {
         // Bildschirm zu schwarz
