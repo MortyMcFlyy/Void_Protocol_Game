@@ -4,6 +4,7 @@ public class ConveyorBox : MonoBehaviour, IInteractable
 {
     [SerializeField] private GameObject puzzleUI; // Referenz zum Kabel-Puzzle UI GameObject
     [SerializeField] private GameObject conveyorBelt;
+    [SerializeField] private AudioSource conveyorAudio;
     private bool isPuzzleOpen = false;
 
     public string GetPrompt()
@@ -54,6 +55,7 @@ public class ConveyorBox : MonoBehaviour, IInteractable
         ClosePuzzle();
         // Hier kannst du weitere Logik anstoßen, z.B. Laufband umdrehen
         Debug.Log("Puzzle gelöst! Stromkreis aktiviert.");
+        conveyorAudio?.Play();
         conveyorBelt.GetComponent<ConveyorBelt>().ToggleDirection();
     }
 }

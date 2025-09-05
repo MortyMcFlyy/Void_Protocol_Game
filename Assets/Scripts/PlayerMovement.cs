@@ -12,6 +12,10 @@ public class PlayerController : MonoBehaviour
     public float groundCheckRadius = 0.2f;
     public LayerMask groundLayer;
     public GrapplingHook grapple;
+    public KeyCode lightKey = KeyCode.E;
+    public Light playerLight;
+    public AudioSource walkSound;
+
 
     [Header("Respawn Settings")]
     public Transform spawnPoint;         
@@ -59,6 +63,12 @@ public class PlayerController : MonoBehaviour
             jumpRequested = true;
         }
 
+        // Licht ein-/ausschalten
+        if (Input.GetKeyDown(lightKey) && playerLight != null)
+        {
+            playerLight.enabled = !playerLight.enabled;
+        }
+
         //Animationsstatus aktualisieren
 
         animator.SetBool("isGrounded", IsGrounded());
@@ -92,6 +102,17 @@ public class PlayerController : MonoBehaviour
             Vector3 desiredXZ = movementInput + conveyorVelocity;
             currentVel.x = desiredXZ.x;
             currentVel.z = desiredXZ.z;
+            if (currentVel.magnitude > 0.1f && IsGrounded())
+            {
+                if (!walkSound.isPlaying)
+                {
+                    walkSound.Play();
+                }
+            }
+            else
+            {
+                walkSound.Stop();
+            }
             rb.linearVelocity = currentVel;
 
         }

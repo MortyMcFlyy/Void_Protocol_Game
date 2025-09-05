@@ -69,12 +69,4 @@ public class Door : MonoBehaviour, IInteractable
         isMoving = false;
     }
 
-    // Optional: Sofort auf offen setzen (falls du mal brauchst)
-    public void ForceOpenImmediate()
-    {
-        if (doorToOpen == null) return;
-        doorToOpen.position = openPosition;
-        isOpen = true;
-        isMoving = false;
-    }
 }

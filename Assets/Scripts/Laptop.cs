@@ -5,6 +5,7 @@ public class Laptop : MonoBehaviour, IInteractable
     [SerializeField] private GameObject passwordUI;   // Canvas mit Eingabefeldern
     [SerializeField] private string correctCode = "1234"; // Richtiger Code
     [SerializeField] private Door linkedDoor;         // Fahrstuhltür, die aufgeht
+    [SerializeField] private AudioSource doorAudio;
 
     private bool isSolved = false;
 
@@ -41,7 +42,10 @@ public class Laptop : MonoBehaviour, IInteractable
             isSolved = true;
 
             if (linkedDoor != null)
+            {
                 linkedDoor.OpenExternally();
+                doorAudio?.Play();
+            }
 
             // UI schließen
             CloseUI();

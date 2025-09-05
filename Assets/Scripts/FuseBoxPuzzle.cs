@@ -12,6 +12,7 @@ public class FuseBoxPuzzle : MonoBehaviour
     public GameObject doorToUnlock;
 
     public UnityEvent onPuzzleSolved;
+    public AudioSource doorAudio;
 
 
     void Start()
@@ -50,6 +51,7 @@ public class FuseBoxPuzzle : MonoBehaviour
         if (doorToUnlock != null)
         {
             onPuzzleSolved?.Invoke();
+            doorAudio?.Play();
         }
     }
 }

@@ -7,6 +7,7 @@ public class ElevatorDoorTrigger : MonoBehaviour
     [Header("Türen / Wände")]
     [SerializeField] private Door entryDoor;          // Tür/Wand unten (fährt hoch)
     [SerializeField] private Door exitDoor;           // Tür/Wand oben (fährt hoch nach Teleport) – optional
+    [SerializeField] private AudioSource doorAudio;
 
     [Header("Ziel")]
     [SerializeField] private Transform destinationPoint;  // Position & Rotation wohin der Player teleportiert
@@ -65,7 +66,10 @@ public class ElevatorDoorTrigger : MonoBehaviour
         if (entryDoor)
         {
             if (!entryDoor.IsOpen && !entryDoor.IsMoving)
+            {
                 entryDoor.OpenExternally();
+                doorAudio?.Play();
+            }
 
             // Warten bis wirklich offen
             yield return StartCoroutine(WaitUntil(() => entryDoor.IsOpen && !entryDoor.IsMoving));
@@ -105,7 +109,10 @@ public class ElevatorDoorTrigger : MonoBehaviour
                 yield return new WaitForSeconds(delayBeforeExitDoorOpens);
 
             if (!exitDoor.IsOpen && !exitDoor.IsMoving)
+            {
                 exitDoor.OpenExternally();
+                doorAudio?.Play();
+            }
             // Warten bis offen (nur wenn du willst)
             // yield return StartCoroutine(WaitUntil(() => exitDoor.IsOpen && !exitDoor.IsMoving));
         }

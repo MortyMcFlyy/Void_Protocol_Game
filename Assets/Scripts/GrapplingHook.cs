@@ -16,6 +16,7 @@ public class GrapplingHook : MonoBehaviour
     public float grappleShootSpeed = 40f;
     public LayerMask grappleLayer;
     public KeyCode grappleKey = KeyCode.F;
+    public AudioSource grappleSound;
 
     private Rigidbody rb;
     private Vector3 grapplePoint;
@@ -97,6 +98,7 @@ public class GrapplingHook : MonoBehaviour
 
         float t = 0f;
         Vector3 currentPoint = grappleOrigin.position;
+        grappleSound?.Play();
 
         while (Vector3.Distance(currentPoint, grapplePoint) > 0.5f)
         {
