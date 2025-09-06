@@ -3,6 +3,7 @@ using UnityEngine;
 public class GigaBotAlertTrigger : MonoBehaviour
 {
     public AudioSource alertAudio;
+    public Light alertLight;
     public float triggerRadius = 2f;
     public LayerMask playerLayer;
     public bool playerDetected = false;
@@ -21,6 +22,7 @@ public class GigaBotAlertTrigger : MonoBehaviour
         if (hitPlayers.Length > 0)
         {
             playerDetected = true;
+            alertLight.enabled = true;
             alertAudio?.Play();
             Debug.Log("GigaBot Alarm ausgelöst!");
         }
