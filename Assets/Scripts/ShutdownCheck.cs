@@ -10,8 +10,8 @@ public class ShutdownCheck : MonoBehaviour
     [SerializeField] private bool onOffSwitch = false;
     [SerializeField] private bool audioStarted = false;
     [SerializeField] private AudioSource shutdownAudio;
+    [SerializeField] private AudioSource warningAudio;
     [SerializeField] private PlayerController playerController;
-    [SerializeField] private float waitForEnd = 10f;
     [SerializeField] private bool end = false;
 
     // Update is called once per frame
@@ -45,17 +45,35 @@ public class ShutdownCheck : MonoBehaviour
     void playAudio()
     {
         if (audioStarted) return;
-        shutdownAudio?.Play();
+        StartCoroutine(PlayWarningAndShutdownAudio());
         audioStarted = true;
     }
+
+    IEnumerator PlayWarningAndShutdownAudio()
+{
+    if (warningAudio != null)
+    {
+        warningAudio.Play();
+        yield return new WaitForSeconds(warningAudio.clip.length-1f);
+        warningAudio.Stop();
+    }
+
+    if (shutdownAudio != null)
+    {
+        shutdownAudio.Play();
+    }
+}
 
     IEnumerator endGame()
     {
         end = true;
-        yield return new WaitForSeconds(waitForEnd);
-        Debug.Log("Game Over: Shutdown Complete");
+        yield return new WaitForSeconds(warningAudio.clip.length);
+        yield return new WaitForSeconds(shutdownAudio.clip.length / 2);
+        playerController.currentDeathType = PlayerController.DeathType.Laser;
+        StartCoroutine(playerController.PlayDissolveEffect());
         StartCoroutine(playerController.Fade(0f, 1f));
-        SwitchToScene("MainMenu");
+        yield return new WaitForSeconds(shutdownAudio.clip.length / 2);
+        SwitchToScene("GameOver");
     }
 
     public void SwitchToScene(string sceneName)

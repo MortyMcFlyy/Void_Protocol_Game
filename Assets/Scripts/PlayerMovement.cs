@@ -39,6 +39,7 @@ public class PlayerController : MonoBehaviour
     public Material laserDissolveMaterial;  // Hier "Mat_dissolve_Red" zuweisen
     public Transform robotModel;       // ReRoboHookIdle Transform zuweisen
     public float dissolveTime = 2.0f;  // Zeit für den Dissolve-Effekt
+    public DeathType currentDeathType;  // Speichert die aktuelle Todesursache
 
     // Speichere die Renderer und ihre ursprünglichen Materialien
     private Renderer[] characterParts;
@@ -52,7 +53,6 @@ public class PlayerController : MonoBehaviour
 
 
     private Animator animator;
-    private DeathType currentDeathType;  // Speichert die aktuelle Todesursache
 
     void Start()
     {
@@ -206,7 +206,7 @@ public class PlayerController : MonoBehaviour
         return isDead;
     }
 
-    private IEnumerator PlayDissolveEffect()
+    public IEnumerator PlayDissolveEffect()
     {
         if (characterParts == null) yield break;
 
