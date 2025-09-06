@@ -5,6 +5,7 @@ using System.Collections;
 public class GrapplingHook : MonoBehaviour
 {
     private bool isUnlocked = false;
+    public float waitTimeAfterShoot = 0.6f;
 
     public Transform grappleOrigin; // z. B. rechte Hand oder Waffe
     public LineRenderer lineRenderer;
@@ -109,7 +110,10 @@ public class GrapplingHook : MonoBehaviour
             yield return null;
         }
 
-        // Nach dem "Schuss" → Grapple aktivieren
+        // Warte eine halbe Sekunde, nachdem der Haken am Ziel angekommen ist
+        yield return new WaitForSeconds(waitTimeAfterShoot);
+
+        // Nach dem "Schuss" und der Wartezeit → Grapple aktivieren
         isShooting = false;
         isGrappling = true;
         BeginPullAnimation();

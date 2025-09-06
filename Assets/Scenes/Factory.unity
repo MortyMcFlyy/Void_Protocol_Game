@@ -55052,12 +55052,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa7347b359a9840838c2c89c3a978a6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  waitTimeAfterShoot: 1.3
   grappleOrigin: {fileID: 1220270289}
   lineRenderer: {fileID: 434421946}
   animator: {fileID: 0}
   maxGrappleDistance: 31
-  grapplePullSpeed: 39.9
-  grappleShootSpeed: 19.6
+  grapplePullSpeed: 50.1
+  grappleShootSpeed: 1.7
   grappleLayer:
     serializedVersion: 2
     m_Bits: 64
