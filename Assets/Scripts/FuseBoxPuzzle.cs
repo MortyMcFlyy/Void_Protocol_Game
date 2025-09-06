@@ -5,7 +5,7 @@ using UnityEngine.Events;
 public class FuseBoxPuzzle : MonoBehaviour
 {
     public Button[] switches;
-    private int[] correctOrder = { 2, 0, 1 };
+    [SerializeField] private int[] correctOrder = { 2, 0, 1 };
     private int currentStep = 0;
 
     public GameObject puzzleUI;
