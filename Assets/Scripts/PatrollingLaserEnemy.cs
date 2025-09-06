@@ -28,6 +28,7 @@ public class PatrollingLaserEnemy : MonoBehaviour
     private bool waiting = false;
     private bool playerDetected = false;
     private Transform playerTarget;
+    private bool isBaseLineMode = false;
 
     void Start()
     {
@@ -37,6 +38,7 @@ public class PatrollingLaserEnemy : MonoBehaviour
 
     void Update()
     {
+        if (isBaseLineMode) return;
         if (playerDetected)
         {
             if (playerTarget != null)
@@ -230,6 +232,18 @@ public class PatrollingLaserEnemy : MonoBehaviour
         {
             Gizmos.color = Color.yellow;
             Gizmos.DrawSphere(weaponMuzzle.position, 0.05f);
+        }
+    }
+
+    public void SetBaseLineMode(bool isActive)
+    {
+        isBaseLineMode = isActive;
+        if (isBaseLineMode)
+        {
+            playerDetected = false;
+            StopAllCoroutines();
+            if (animator != null)
+                animator.SetFloat("speed", 0f);
         }
     }
 }

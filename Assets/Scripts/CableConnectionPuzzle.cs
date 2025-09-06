@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System;
+
 
 public class CableConnectionPuzzle : MonoBehaviour
 {
@@ -15,7 +17,7 @@ public class CableConnectionPuzzle : MonoBehaviour
     }
 
     public CablePair[] cablePairs;
-
+    [SerializeField] private string skriptName = "ConveyorBox"; // z.B. im Inspector eintragen
     [SerializeField] private GameObject Interactable;
  
 
@@ -75,8 +77,17 @@ public class CableConnectionPuzzle : MonoBehaviour
 
     void OnPuzzleSolved()
     {
-        // Beispiel: Laufband Richtung umdrehen
-        Debug.Log("Puzzle gelöst! Laufband umdrehen.");
-        Interactable.GetComponent<ConveyorBox>().OnPuzzleSolved();
+        var type = Type.GetType(skriptName);
+        if (type != null && Interactable != null)
+        {
+            var comp = Interactable.GetComponent(type);
+            // Hier musst du die Methode per Reflection aufrufen
+            var method = type.GetMethod("OnPuzzleSolved");
+            method?.Invoke(comp, null);
+        }
+        else
+        {
+            Debug.LogError("Skripttyp nicht gefunden oder Interactable ist null: " + skriptName);
+        }
     }
 }
