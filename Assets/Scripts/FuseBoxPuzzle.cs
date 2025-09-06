@@ -24,6 +24,17 @@ public class FuseBoxPuzzle : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            puzzleUI.SetActive(false);
+            Time.timeScale = 1f;
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+    }
+
     void PressSwitch(int index)
     {
         if (index == correctOrder[currentStep])

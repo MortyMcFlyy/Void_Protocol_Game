@@ -3,7 +3,7 @@ using UnityEngine;
 public class Laptop : MonoBehaviour, IInteractable
 {
     [SerializeField] private GameObject passwordUI;   // Canvas mit Eingabefeldern
-    [SerializeField] private string correctCode = "1234"; // Richtiger Code
+    [SerializeField] private string correctCode = "5397"; // Richtiger Code
     [SerializeField] private Door linkedDoor;         // Fahrstuhltür, die aufgeht
     [SerializeField] private AudioSource doorAudio;
 

@@ -151,6 +151,7 @@ public class PlayerController : MonoBehaviour
     {
         if (((1 << collision.gameObject.layer) & killZone) != 0 && !isDead)
         {
+            collision.gameObject.GetComponent<AudioSource>()?.Play();
             Die();
         }
     }
@@ -159,6 +160,7 @@ public class PlayerController : MonoBehaviour
     {
         if (((1 << other.gameObject.layer) & killZone) != 0 && !isDead)
         {
+            other.gameObject.GetComponent<AudioSource>()?.Play();
             Die();
         }
     }
