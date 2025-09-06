@@ -59573,15 +59573,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b56164d76e69c4e3d8de782faff5d785, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 180.56
+      value: 126.79
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b56164d76e69c4e3d8de782faff5d785, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 33.87
+      value: 0.99
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b56164d76e69c4e3d8de782faff5d785, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 35.91
+      value: 9.27
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b56164d76e69c4e3d8de782faff5d785, type: 3}
       propertyPath: m_LocalRotation.w
@@ -60138,6 +60138,10 @@ MonoBehaviour:
   fadePanel: {fileID: 1944222116}
   fadeDuration: 1
   isTeleporting: 0
+  dissolveMaterial: {fileID: 2100000, guid: 1628d383790db8944812792604163988, type: 2}
+  laserDissolveMaterial: {fileID: 2100000, guid: 3c0150b60a503024b808cc1efabe2f42, type: 2}
+  robotModel: {fileID: 434421944}
+  dissolveTime: 2
 --- !u!54 &434421951
 Rigidbody:
   m_ObjectHideFlags: 0

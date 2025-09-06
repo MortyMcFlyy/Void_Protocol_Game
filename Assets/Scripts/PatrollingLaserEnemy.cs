@@ -156,7 +156,7 @@ public class PatrollingLaserEnemy : MonoBehaviour
         // Spieler sterben lassen (ruft die gleiche Methode wie im ursprünglichen Skript auf)
         if (pc != null)
         {
-            pc.Die();
+            pc.Die(PlayerController.DeathType.Laser);  // Explizit als Laser-Tod markieren
         }
         else
         {

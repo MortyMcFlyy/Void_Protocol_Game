@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Mat_dissolve
+  m_Name: Mat_dissolve_Red
   m_Shader: {fileID: -6465566751694194690, guid: 44c9cbaf29e6eb74b98af0d15b117c38, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
