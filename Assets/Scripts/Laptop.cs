@@ -15,6 +15,16 @@ public class Laptop : MonoBehaviour, IInteractable
             passwordUI.SetActive(false); // UI am Anfang aus
     }
 
+    void Update()
+    {
+        if (isSolved) return;
+
+        if (Input.GetKeyDown(KeyCode.Escape) && passwordUI.activeSelf)
+        {
+            CloseUI();
+        }
+    }
+
     public string GetPrompt()
     {
         return isSolved ? "" : "F: Laptop benutzen";

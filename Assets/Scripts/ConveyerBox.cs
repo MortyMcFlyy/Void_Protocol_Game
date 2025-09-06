@@ -7,6 +7,14 @@ public class ConveyorBox : MonoBehaviour, IInteractable
     [SerializeField] private AudioSource conveyorAudio;
     private bool isPuzzleOpen = false;
 
+    void Update()
+    {
+        if (isPuzzleOpen && Input.GetKeyDown(KeyCode.Escape))
+        {
+            ClosePuzzle();
+        }
+    }
+
     public string GetPrompt()
     {
         return isPuzzleOpen ? "" : "F: Sicherungskasten öffnen";
