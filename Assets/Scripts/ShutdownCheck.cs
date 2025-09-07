@@ -68,11 +68,11 @@ public class ShutdownCheck : MonoBehaviour
     {
         end = true;
         yield return new WaitForSeconds(warningAudio.clip.length);
-        yield return new WaitForSeconds(shutdownAudio.clip.length / 2);
+        yield return new WaitForSeconds(shutdownAudio.clip.length / 2 - 2f);
         playerController.currentDeathType = PlayerController.DeathType.Laser;
         StartCoroutine(playerController.PlayDissolveEffect());
-        StartCoroutine(playerController.Fade(0f, 1f));
-        yield return new WaitForSeconds(shutdownAudio.clip.length / 2);
+        StartCoroutine(playerController.endGameFade(0f, 1f));
+        yield return new WaitForSeconds(shutdownAudio.clip.length / 2 + 2f);
         SwitchToScene("GameOver");
     }
 

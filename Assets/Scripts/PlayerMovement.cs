@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -32,7 +33,9 @@ public class PlayerController : MonoBehaviour
     [Header("Fade Settings")]
     public CanvasGroup fadePanel;        
     public float fadeDuration = 1f;
-    public bool isTeleporting = false;      
+    public bool isTeleporting = false;
+    public CanvasGroup endGamePanel;
+    public float endGameFadeDuration = 5f;      
 
     [Header("Dissolve Effect")]
     public Material dissolveMaterial;  // Hier "Mat_dissolve_Green" zuweisen
@@ -359,6 +362,21 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
         fadePanel.alpha = end;
+    }
+
+    public IEnumerator endGameFade(float start, float end)
+    {
+        if (endGamePanel == null) yield break;
+
+        float elapsed = 0f;
+        while (elapsed < endGameFadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            endGamePanel.alpha = Mathf.Lerp(start, end, elapsed / endGameFadeDuration);
+            yield return null;
+        }
+        endGamePanel.alpha = end;
+        endGamePanel.GetComponent<Image>().color = Color.white;
     }
 
     public void SetSpawnPoint(Transform t)
