@@ -2,15 +2,27 @@ using UnityEngine;
 
 public class RobotHuntTrigger : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public Door doorToOpen;
+    public AudioSource doorSound;
+    public HuntingEnemy[] robotsToActivate;
+    public float triggerRadius = 2f;
+    public LayerMask playerLayer;
+    public bool playerDetected = false;
 
-    // Update is called once per frame
     void Update()
     {
-        
+        if (playerDetected) return;
+        Collider[] hitPlayers = Physics.OverlapSphere(transform.position, triggerRadius, playerLayer);
+        if (hitPlayers.Length > 0)
+        {
+            playerDetected = true;
+            doorSound?.Play();
+            doorToOpen?.OpenExternally();
+            foreach (var robot in robotsToActivate)
+            {
+                robot?.StartHunt();
+            }
+            Debug.Log("Roboter-Jagd ausgelöst!");
+        }
     }
 }

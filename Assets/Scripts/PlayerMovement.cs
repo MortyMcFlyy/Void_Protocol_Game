@@ -53,6 +53,7 @@ public class PlayerController : MonoBehaviour
     private bool jumpRequested = false;
     private Vector3 movementInput = Vector3.zero;
     private Vector3 conveyorVelocity = Vector3.zero;
+    private bool isPaused = false;
 
 
     private Animator animator;
@@ -73,7 +74,18 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            SceneManager.LoadScene("Pause", LoadSceneMode.Additive);
+            if (isPaused)
+            {
+                isPaused = false;
+                SceneManager.UnloadSceneAsync("Pause");
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+            else
+            {
+                isPaused = true;
+                SceneManager.LoadScene("Pause", LoadSceneMode.Additive);
+            }
         }
 
         if (!canMove) return;
