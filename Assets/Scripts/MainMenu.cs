@@ -7,7 +7,6 @@ public class MainMenu : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-        Time.timeScale = 1f;
     }
 
     public void StartGame()
@@ -26,9 +25,23 @@ public class MainMenu : MonoBehaviour
     }
 
 
-    public void ShowSettings()
+    public void ShowControls()
     {
-        // Implement settings menu display logic here
-        Debug.Log("Settings menu opened");
+        Debug.Log("Controls menu opened");
+        SceneManager.LoadScene("Controls");
+    }
+
+    public void MainMenuScene()
+    {
+        Debug.Log("Main Menu scene loaded");
+        SceneManager.LoadScene("MainMenu");
+    }
+
+    public void Play()
+    {
+        Debug.Log("Play button clicked");
+        SceneManager.UnloadSceneAsync("Pause");
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 }
