@@ -4,7 +4,6 @@ using System.Collections;
 public class HuntingEnemy : MonoBehaviour
 {
     [Header("Verfolgung")]
-    public float moveSpeed = 3f;
     public float killRadius = 2f;
     public LayerMask playerLayer;
     public float aggroDelay = 1f;
@@ -16,14 +15,19 @@ public class HuntingEnemy : MonoBehaviour
     [SerializeField] private AudioSource attackSound;
     [SerializeField] private AudioSource walkSound;
 
+    private UnityEngine.AI.NavMeshAgent agent;
     private Transform playerTarget;
     private bool playerDetected = false;
     private bool huntStarted = false;
 
+    void Awake()
+    {
+        agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+    }
+
     void Update()
     {
-        if (!huntStarted) return;
-        if (playerDetected) return;
+        if (!huntStarted || playerDetected) return;
 
         FindAndFollowPlayer();
         DetectPlayer();
@@ -31,34 +35,19 @@ public class HuntingEnemy : MonoBehaviour
 
     private void FindAndFollowPlayer()
     {
-        Collider[] hitPlayers = Physics.OverlapSphere(transform.position, 30f, playerLayer); // 30f = Suchradius
+        Collider[] hitPlayers = Physics.OverlapSphere(transform.position, 30f, playerLayer);
         if (hitPlayers.Length > 0)
         {
             playerTarget = hitPlayers[0].transform;
-            MoveTowardsPlayer();
+            
+            agent.SetDestination(playerTarget.position);
+            animator.SetFloat("speed", agent.velocity.magnitude);
+            if (!walkSound.isPlaying) walkSound.Play();
         }
         else
         {
             animator.SetFloat("speed", 0f);
             walkSound.Stop();
-        }
-    }
-
-    private void MoveTowardsPlayer()
-    {
-        if (playerTarget == null) return;
-
-        Vector3 direction = (playerTarget.position - transform.position).normalized;
-        transform.position += direction * moveSpeed * Time.deltaTime;
-
-        if (direction != Vector3.zero)
-            transform.forward = direction;
-
-        animator.SetFloat("speed", moveSpeed);
-
-        if (!walkSound.isPlaying)
-        {
-            walkSound.Play();
         }
     }
 
@@ -70,7 +59,12 @@ public class HuntingEnemy : MonoBehaviour
         if (distance <= killRadius)
         {
             playerDetected = true;
-            StartCoroutine(AttackSequence());
+            agent.isStopped = true;
+            if (playerTarget.GetComponent<PlayerController>().IsCatched() == false)
+            {
+                playerTarget.GetComponent<PlayerController>().SetCatched(true);
+                StartCoroutine(AttackSequence());
+            }
         }
     }
 
@@ -137,11 +131,14 @@ public class HuntingEnemy : MonoBehaviour
 
         playerTarget.SetParent(null);
         playerDetected = false;
+        yield return new WaitForSeconds(5f);
+        pc.SetCatched(false);
     }
 
     public void StartHunt()
     {
         huntStarted = true;
+        agent.isStopped = false;
         Debug.Log("Roboter-Jagd gestartet!");
     }
 }

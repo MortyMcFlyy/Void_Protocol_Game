@@ -4,7 +4,7 @@ using System.Collections;
 [RequireComponent(typeof(Rigidbody))]
 public class GrapplingHook : MonoBehaviour
 {
-    private bool isUnlocked = false;
+    public bool isUnlocked = false;
     public float waitTimeAfterShoot = 0.6f;
 
     public Transform grappleOrigin;

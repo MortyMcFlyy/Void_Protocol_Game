@@ -48,7 +48,8 @@ public class PlayerController : MonoBehaviour
     private Renderer[] characterParts;
     private Material[][] originalMaterials;
 
-    private bool isDead = false;         
+    private bool isDead = false; 
+    private bool isCatched = false;             
     private Rigidbody rb;
     private bool jumpRequested = false;
     private Vector3 movementInput = Vector3.zero;
@@ -208,6 +209,16 @@ public class PlayerController : MonoBehaviour
     public bool IsDead()
     {
         return isDead;
+    }
+
+    public bool IsCatched()
+    {
+        return isCatched;
+    }
+
+    public void SetCatched(bool catched)
+    {
+        isCatched = catched;
     }
 
     public IEnumerator PlayDissolveEffect()

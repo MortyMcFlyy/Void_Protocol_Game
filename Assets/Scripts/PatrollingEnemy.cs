@@ -156,6 +156,8 @@ public class PatrollingEnemy : MonoBehaviour
         
         playerTarget.SetParent(null);
         playerDetected = false;
+
+        yield return new WaitForSeconds(2f);
     }
 
 }

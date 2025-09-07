@@ -155,10 +155,6 @@ public class PatrollingLaserEnemy : MonoBehaviour
         {
             pc.Die(PlayerController.DeathType.Laser);
         }
-        else
-        {
-            Destroy(playerTarget.gameObject);
-        }
 
         if (animator != null)
             animator.SetTrigger("Shoot");
