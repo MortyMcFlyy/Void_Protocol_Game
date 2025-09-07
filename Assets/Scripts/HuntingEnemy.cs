@@ -9,6 +9,10 @@ public class HuntingEnemy : MonoBehaviour
     public float aggroDelay = 1f;
     public float killDelay = 1f;
 
+    [Header("Reset")]
+    public Transform spawnPoint;
+    public RobotHuntTrigger huntTrigger;
+
     [Header("Animation")]
     public Animator animator;
     [SerializeField] private Transform grabPoint;
@@ -132,6 +136,7 @@ public class HuntingEnemy : MonoBehaviour
         playerTarget.SetParent(null);
         playerDetected = false;
         yield return new WaitForSeconds(5f);
+        huntTrigger.ResetHunter();
         pc.SetCatched(false);
     }
 
@@ -140,5 +145,20 @@ public class HuntingEnemy : MonoBehaviour
         huntStarted = true;
         agent.isStopped = false;
         Debug.Log("Roboter-Jagd gestartet!");
+    }
+
+    public void ResetHunter()
+    {
+        huntStarted = false;
+        playerDetected = false;
+        agent.isStopped = true;
+        agent.ResetPath();
+        agent.transform.position = spawnPoint.position;
+        agent.transform.rotation = spawnPoint.rotation;
+        animator.SetFloat("speed", 0f);
+        walkSound.Stop();
+        transform.position = spawnPoint.position;
+        transform.rotation = spawnPoint.rotation;
+        Debug.Log("Roboter-Jagd zurückgesetzt!");
     }
 }
