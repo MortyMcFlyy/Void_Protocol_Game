@@ -11,12 +11,14 @@ public class PatrollingEnemy : MonoBehaviour
     [Header("Spieler-Erkennung")]
     public float killRadius = 2f;
     public LayerMask playerLayer;
-    public float aggroDelay = 1f;     // Zeit bis Attack startet
-    public float killDelay = 1f;      // Zeit bis Kill nach Aggro
+    public float aggroDelay = 1f;
+    public float killDelay = 1f;
 
     [Header("Animation")]
     public Animator animator;
-    [SerializeField] private Transform grabPoint; // im Inspector zuweisen
+    [SerializeField] private Transform grabPoint;
+    [SerializeField] private AudioSource attackSound;
+    [SerializeField] private AudioSource walkSound;
 
     private int currentPointIndex = 0;
     private bool waiting = false;
@@ -25,7 +27,7 @@ public class PatrollingEnemy : MonoBehaviour
 
     void Update()
     {
-        if (playerDetected) return; // Bewegung stoppen, wenn im Kampf
+        if (playerDetected) return;
 
         Patrol();
         DetectPlayer();
@@ -44,19 +46,20 @@ public class PatrollingEnemy : MonoBehaviour
             moveSpeed * Time.deltaTime
         );
 
-        // Gegner ausrichten
         Vector3 direction = (targetPoint.position - transform.position).normalized;
         if (direction != Vector3.zero)
             transform.forward = direction;
 
-        // Abstand zum Zielpunkt
         float distance = Vector3.Distance(transform.position, targetPoint.position);
 
-        // Animator: speed hoch wenn noch nicht am Ziel, sonst 0
         float animSpeed = distance > 0.05f ? moveSpeed : 0f;
         animator.SetFloat("speed", animSpeed);
 
-        // Am Wegpunkt angekommen?
+        if (!walkSound.isPlaying)
+        {
+            walkSound.Play();
+        }
+
         if (distance < 0.05f)
         {
             StartCoroutine(WaitAtPoint());
@@ -68,8 +71,9 @@ public class PatrollingEnemy : MonoBehaviour
     private IEnumerator WaitAtPoint()
     {
         waiting = true;
+        walkSound.Stop();
 
-        animator.SetFloat("speed", 0f); // sicherstellen dass Idle läuft
+        animator.SetFloat("speed", 0f);
         yield return new WaitForSeconds(waitTimeAtPoint);
 
         currentPointIndex = (currentPointIndex + 1) % patrolPoints.Length;
@@ -89,12 +93,10 @@ public class PatrollingEnemy : MonoBehaviour
 
     private IEnumerator AttackSequence()
     {
-        // Spieler-Controller und Rigidbody
         var pc = playerTarget.GetComponent<PlayerController>();
         var rb = playerTarget.GetComponent<Rigidbody>();
         var playerAnimator = playerTarget.GetComponent<Animator>();
 
-        // Spielerbewegung sofort blockieren
         if (pc != null) pc.canMove = false;
         if (rb != null)
         {
@@ -102,40 +104,37 @@ public class PatrollingEnemy : MonoBehaviour
             rb.angularVelocity = Vector3.zero;
         }
 
-        // Spieler-Animator Walk stoppen
         if (playerAnimator != null)
         {
-            playerAnimator.SetFloat("Speed", 0f); // Idle erzwingen
+            playerAnimator.SetFloat("Speed", 0f); 
         }
 
-        // Aggro-Animation des Gegners starten
         animator.SetTrigger("Aggro");
+        walkSound.Stop();
+        attackSound?.Play();
 
-        // Aggro-Phase: Spieler langsam zum Gegner ziehen
         float elapsed = 0f;
         Vector3 startPos = playerTarget.position;
         Quaternion startRot = playerTarget.rotation;
 
-        // Bestimme den Punkt, wo der Spieler in den Händen des Gegners landen soll
         Vector3 targetPos = grabPoint.position;
-        //grabPoint.rotation = grabPoint.rotation * Quaternion.Euler(90f, 0, 0); // 90° Rotation
 
         if (rb != null)
         {
-            rb.isKinematic = true;        // Physik deaktivieren
+            rb.isKinematic = true;
             rb.detectCollisions = false;
             rb.freezeRotation = false;
         }
 
-        while (elapsed < aggroDelay)
+        yield return new WaitForSeconds(2.5f);
+
+        while (elapsed < aggroDelay/2f)
         {
             elapsed += Time.deltaTime;
-            float t = elapsed / aggroDelay;
+            float t = elapsed / (aggroDelay/2f);
 
-            // Spieler langsam Richtung Gegner bewegen
             playerTarget.position = Vector3.Lerp(startPos, targetPos, t);
 
-            // Spieler dabei nach und nach zum Gegner ausrichten
             Vector3 lookDir = (transform.position - playerTarget.position).normalized;
             lookDir.y = 0f;
             if (lookDir != Vector3.zero)
@@ -146,14 +145,12 @@ public class PatrollingEnemy : MonoBehaviour
             yield return null;
         }
 
-        // Kill-Animation starten
         animator.SetTrigger("Kill");
         yield return new WaitForSeconds(killDelay);
 
-        // Spieler sterben lassen
         if (pc != null)
         {
-            pc.Die(); // Teleportiert ihn zum Spawn oder macht was sonst vorgesehen ist
+            pc.Die(PlayerController.DeathType.Laser);
         }
 
         

@@ -11,18 +11,20 @@ public class PatrollingLaserEnemy : MonoBehaviour
     [Header("Spieler-Erkennung")]
     public float killRadius = 2f;
     public LayerMask playerLayer;
-    public float aggroDelay = 2f;     // Zeit bis Attack startet (Aggro)
-    public float shootDelay = 0.5f;    // Zeit nach dem Aggro bis zum Schuss (kann kurz sein)
-    public float rotationSpeed = 2f;   // Geschwindigkeit, mit der sich der Gegner zum Spieler dreht
+    public float aggroDelay = 2f;
+    public float shootDelay = 0.5f;
+    public float rotationSpeed = 2f;
 
     [Header("Laser / Schuss")]
-    public Transform weaponMuzzle;    // muzzle / Waffe-Arm Transform (vom Laserarm)
-    public LineRenderer lineRenderer; // LineRenderer für den Laserstrahl
+    public Transform weaponMuzzle;
+    public LineRenderer lineRenderer;
     public float beamDuration = 0.15f;
     public float maxShootDistance = 50f;
 
     [Header("Animation")]
     public Animator animator;
+    [SerializeField] private AudioSource attackSound;
+    [SerializeField] private AudioSource walkSound;
 
     private int currentPointIndex = 0;
     private bool waiting = false;
@@ -43,7 +45,7 @@ public class PatrollingLaserEnemy : MonoBehaviour
         {
             if (playerTarget != null)
                 RotateTowards(playerTarget.position);
-            return; // Bewegung stoppen, wenn Angriff läuft
+            return;
         }
 
         Patrol();
@@ -63,20 +65,21 @@ public class PatrollingLaserEnemy : MonoBehaviour
             moveSpeed * Time.deltaTime
         );
 
-        // Gegner ausrichten
         Vector3 direction = (targetPoint.position - transform.position).normalized;
         if (direction != Vector3.zero)
             transform.forward = direction;
 
-        // Abstand zum Zielpunkt
         float distance = Vector3.Distance(transform.position, targetPoint.position);
 
-        // Animator: speed hoch wenn noch nicht am Ziel, sonst 0
         float animSpeed = distance > 0.05f ? moveSpeed : 0f;
         if (animator != null)
             animator.SetFloat("speed", animSpeed);
 
-        // Am Wegpunkt angekommen?
+        if (!walkSound.isPlaying)
+        {
+            walkSound.Play();
+        }
+
         if (distance < 0.05f)
         {
             StartCoroutine(WaitAtPoint());
@@ -86,9 +89,10 @@ public class PatrollingLaserEnemy : MonoBehaviour
     private IEnumerator WaitAtPoint()
     {
         waiting = true;
+        walkSound.Stop();
 
         if (animator != null)
-            animator.SetFloat("speed", 0f); // Idle erzwingen
+            animator.SetFloat("speed", 0f);
         yield return new WaitForSeconds(waitTimeAtPoint);
 
         currentPointIndex = (currentPointIndex + 1) % patrolPoints.Length;
@@ -114,7 +118,6 @@ public class PatrollingLaserEnemy : MonoBehaviour
             yield break;
         }
 
-        // Spieler-Controller und Rigidbody
         var pc = playerTarget.GetComponent<PlayerController>();
         var rb = playerTarget.GetComponent<Rigidbody>();
         var playerAnimator = playerTarget.GetComponent<Animator>();
@@ -125,42 +128,35 @@ public class PatrollingLaserEnemy : MonoBehaviour
             yield break;
         }
 
-        // Spielerbewegung sofort blockieren (wie im Original)
         if (pc != null) pc.canMove = false;
         if (rb != null)
         {
-            // stoppe sofortige Bewegung
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
         }
 
         if (playerAnimator != null)
         {
-            // Erzwinge Idle beim Spieler
             playerAnimator.SetFloat("Speed", 0f);
         }
 
-        // Aggro-Animation des Gegners starten (z.B. hebt Arm oder zielt)
+        walkSound.Stop();
+
         if (animator != null)
             animator.SetTrigger("Aggro");
 
-        // Warte kurz bis Aggro-Phase vorbei ist (zielen)
         yield return new WaitForSeconds(aggroDelay);        
             
-        // kurze Verzögerung bevor der Kill ausgeführt wird
         yield return new WaitForSeconds(shootDelay);
 
-        // Laser abschießen (zeichnet LineRenderer)
         yield return StartCoroutine(FireLaser());
 
-        // Spieler sterben lassen (ruft die gleiche Methode wie im ursprünglichen Skript auf)
         if (pc != null)
         {
-            pc.Die(PlayerController.DeathType.Laser);  // Explizit als Laser-Tod markieren
+            pc.Die(PlayerController.DeathType.Laser);
         }
         else
         {
-            // Falls kein PlayerController vorhanden, fallback: zerstöre GameObject
             Destroy(playerTarget.gameObject);
         }
 
@@ -172,15 +168,15 @@ public class PatrollingLaserEnemy : MonoBehaviour
 
     private IEnumerator FireLaser()
     {
+        attackSound?.Play();
+
         if (lineRenderer == null || weaponMuzzle == null || playerTarget == null)
             yield break;
 
         Vector3 start = weaponMuzzle.position;
         Vector3 targetPos = playerTarget.position;
-        // Versetze Ziel leicht nach oben, damit der Strahl auf rote target zone (Brust/Kopf) trifft
         targetPos += Vector3.up * 0.5f;
 
-        // Raycast: ermittle exaktes Trefferpunkt (z. B. Hindernisse dazwischen)
         Vector3 dir = (targetPos - start).normalized;
         RaycastHit hit;
         Vector3 end = start + dir * maxShootDistance;
@@ -190,7 +186,6 @@ public class PatrollingLaserEnemy : MonoBehaviour
         }
         else
         {
-            // wenn nichts getroffen, dann ziehe Linie zum Spieler (oder maximal)
             float distToPlayer = Vector3.Distance(start, targetPos);
             end = start + dir * Mathf.Min(distToPlayer, maxShootDistance);
         }
@@ -200,30 +195,26 @@ public class PatrollingLaserEnemy : MonoBehaviour
         lineRenderer.SetPosition(1, end);
         lineRenderer.enabled = true;
 
-        // kurze Flackerdauer des Lasers
         float elapsed = 0f;
         while (elapsed < beamDuration)
         {
             elapsed += Time.deltaTime;
-            // Optional: animiere Strength/Intensity über Material (wenn Material-Property vorhanden)
             yield return null;
         }
 
         lineRenderer.enabled = false;
     }
 
-    // Glattes Drehen zur Spielerposition (nur Y-Achse, kein Kippen)
     private void RotateTowards(Vector3 targetPosition)
     {
         Vector3 dir = targetPosition - transform.position;
-        dir.y = 0f; // nur um die Y-Achse drehen
+        dir.y = 0f;
         if (dir.sqrMagnitude < 0.0001f) return;
 
         Quaternion targetRot = Quaternion.LookRotation(dir);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
     }
 
-    // Visualisierung des Kill-Radius im Editor
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red * 0.6f;
@@ -244,6 +235,7 @@ public class PatrollingLaserEnemy : MonoBehaviour
             StopAllCoroutines();
             if (animator != null)
                 animator.SetFloat("speed", 0f);
+            walkSound.Stop();
         }
     }
 }

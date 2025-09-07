@@ -8,11 +8,6 @@ public class PasswordUI : MonoBehaviour
 
     private string currentInput = "";
 
-    void Start()
-    {
-        //gameObject.SetActive(false);
-    }
-
     public void AddDigit(string digit)
     {
         if (currentInput.Length < 4)
@@ -24,7 +19,7 @@ public class PasswordUI : MonoBehaviour
         if (currentInput.Length == 4)
         {
             laptop.CheckCode(currentInput);
-            currentInput = ""; // zurücksetzen
+            currentInput = "";
             codeDisplay.text = "";
         }
     }

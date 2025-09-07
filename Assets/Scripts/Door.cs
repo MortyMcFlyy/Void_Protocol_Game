@@ -12,11 +12,10 @@ public class Door : MonoBehaviour, IInteractable
     private Vector3 closedPosition;
     private Vector3 openPosition;
 
-    // NEU: Öffentliche Properties zum Abfragen
     public bool IsOpen => isOpen;
     public bool IsMoving => isMoving;
-    public float OpenSpeed => openSpeed;              // falls extern die Dauer berechnet werden soll
-    public Transform DoorTransform => doorToOpen;     // falls Position gebraucht wird
+    public float OpenSpeed => openSpeed;
+    public Transform DoorTransform => doorToOpen;
 
     private void Start()
     {

@@ -6,7 +6,7 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField] private float interactRadius = 1f;
     [SerializeField] private LayerMask interactableLayer;
     [SerializeField] private TMPro.TextMeshProUGUI promptText;
-    [SerializeField] private Transform originTransform; // z. B. Kamera
+    [SerializeField] private Transform originTransform;
 
     private IInteractable currentInteractable;
 

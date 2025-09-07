@@ -35,7 +35,6 @@ public class DynamicCamera : MonoBehaviour
 
     void Update()
     {
-        // Mausrotation erfassen
         yaw += Input.GetAxis("Mouse X") * mouseSensitivity;
         pitch -= Input.GetAxis("Mouse Y") * mouseSensitivity;
         pitch = Mathf.Clamp(pitch, pitchMin, pitchMax);
@@ -43,7 +42,6 @@ public class DynamicCamera : MonoBehaviour
 
     void LateUpdate()
     {
-        // Zielposition vorbereiten
         targetPosition = target.position;
         targetPosition.y += lookAtHeight;
 
@@ -56,19 +54,15 @@ public class DynamicCamera : MonoBehaviour
 
         finalCameraPosition = desiredCameraPosition;
 
-        // Kollisionsprüfung per SphereCast
         if (direction.magnitude > 0.01f && Physics.SphereCast(lookTarget, sphereRadius, direction.normalized, out RaycastHit hit, maxDistance, obstacleMask))
         {
             float safeDistance = Mathf.Max(minDistance, hit.distance - 0.05f);
             finalCameraPosition = lookTarget + direction.normalized * safeDistance;
         }
 
-        // Kamera bewegen und ausrichten
-        //transform.position = Vector3.Lerp(transform.position, finalCameraPosition, smoothSpeed);
         transform.position = finalCameraPosition;
         transform.LookAt(lookTarget);
 
-        // Charakter horizontal zur Kamera ausrichten
         Vector3 lookDirection = transform.forward;
         lookDirection.y = 0f;
         if (lookDirection.sqrMagnitude > 0.001f)

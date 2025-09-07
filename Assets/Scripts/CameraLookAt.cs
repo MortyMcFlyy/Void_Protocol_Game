@@ -8,10 +8,9 @@ public class LookAtPlayer : MonoBehaviour
     {
         if (!player) return;
 
-        float fixedY = transform.position.y; // Y-Position merken
+        float fixedY = transform.position.y;
         if (Vector3.Distance(transform.position, player.position) > 0.01f)
             transform.LookAt(player, Vector3.up);
-        // Y-Position zurücksetzen
         transform.position = new Vector3(transform.position.x, fixedY, transform.position.z);
     }
 }

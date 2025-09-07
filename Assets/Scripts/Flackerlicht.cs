@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(Light))]
 public class Flackerlicht : MonoBehaviour
 {
-    public Renderer emissionRenderer; // Renderer des Cubes mit Emission
+    public Renderer emissionRenderer;
     public Color emissionColor = Color.white;
     public float minIntensity = 0f;
     public float maxIntensity = 1f;
@@ -25,7 +25,6 @@ public class Flackerlicht : MonoBehaviour
 
         if (emissionRenderer != null)
         {
-            // Instanziere das Material, damit nur dieser Renderer beeinflusst wird
             emissionMaterial = emissionRenderer.material;
             emissionMaterial.EnableKeyword("_EMISSION");
         }
@@ -39,11 +38,9 @@ public class Flackerlicht : MonoBehaviour
 
     void Flicker()
     {
-        // Flackernde Lichtintensität
         float randomIntensity = Random.Range(minIntensity, maxIntensity);
         flackerLight.intensity = randomIntensity;
 
-        // Emission ein/aus im gleichen Intervall
         if (emissionMaterial != null)
         {
             if (emissionOn)

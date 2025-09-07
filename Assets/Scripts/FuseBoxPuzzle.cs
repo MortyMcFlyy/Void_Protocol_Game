@@ -19,7 +19,7 @@ public class FuseBoxPuzzle : MonoBehaviour
     {
         for (int i = 0; i < switches.Length; i++)
         {
-            int index = i; // Lokale Kopie für Button-Callback
+            int index = i;
             switches[i].onClick.AddListener(() => PressSwitch(index));
         }
     }
@@ -47,7 +47,7 @@ public class FuseBoxPuzzle : MonoBehaviour
         }
         else
         {
-            currentStep = 0; // Fehler → zurücksetzen
+            currentStep = 0;
         }
     }
 

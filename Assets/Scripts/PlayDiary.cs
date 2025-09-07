@@ -8,7 +8,6 @@ public class PlayDiary : MonoBehaviour, IInteractable
 
     public void Interact()
     {
-        // Inventar hinzufügen, Objekt entfernen
         Debug.Log($"Tagebuch wurde abgespielt.");
         diaryAudio?.Play();
     }

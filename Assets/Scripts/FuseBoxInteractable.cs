@@ -14,7 +14,7 @@ public class FuseBoxInteractable : MonoBehaviour, IInteractable
         if (puzzleUI != null)
         {
             puzzleUI.SetActive(true);
-            Time.timeScale = 0f; // Optional: Spiel pausieren
+            Time.timeScale = 0f;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }

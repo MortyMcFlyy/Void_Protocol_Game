@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class Laptop : MonoBehaviour, IInteractable
 {
-    [SerializeField] private GameObject passwordUI;   // Canvas mit Eingabefeldern
-    [SerializeField] private string correctCode = "5397"; // Richtiger Code
-    [SerializeField] private Door linkedDoor;         // Fahrstuhltür, die aufgeht
+    [SerializeField] private GameObject passwordUI;
+    [SerializeField] private string correctCode = "5397";
+    [SerializeField] private Door linkedDoor;
     [SerializeField] private AudioSource doorAudio;
 
     private bool isSolved = false;
@@ -12,7 +12,7 @@ public class Laptop : MonoBehaviour, IInteractable
     private void Start()
     {
         if (passwordUI != null)
-            passwordUI.SetActive(false); // UI am Anfang aus
+            passwordUI.SetActive(false);
     }
 
     void Update()
@@ -40,7 +40,7 @@ public class Laptop : MonoBehaviour, IInteractable
             // Cursor freischalten
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-            Time.timeScale = 0f; // optional Spiel pausieren
+            Time.timeScale = 0f;
         }
     }
 
@@ -57,7 +57,6 @@ public class Laptop : MonoBehaviour, IInteractable
                 doorAudio?.Play();
             }
 
-            // UI schließen
             CloseUI();
         }
         else
@@ -73,6 +72,6 @@ public class Laptop : MonoBehaviour, IInteractable
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        Time.timeScale = 1f; // wieder normal
+        Time.timeScale = 1f;
     }
 }

@@ -5,19 +5,16 @@ using System.Collections;
 public class ElevatorDoorTrigger : MonoBehaviour
 {
     [Header("Türen / Wände")]
-    [SerializeField] private Door entryDoor;          // Tür/Wand unten (fährt hoch)
-    [SerializeField] private Door exitDoor;           // Tür/Wand oben (fährt hoch nach Teleport) – optional
+    [SerializeField] private Door entryDoor;         
+    [SerializeField] private Door exitDoor;        
     [SerializeField] private AudioSource doorAudio;
 
     [Header("Ziel")]
-    [SerializeField] private Transform destinationPoint;  // Position & Rotation wohin der Player teleportiert
+    [SerializeField] private Transform destinationPoint;
 
     [Header("Fade & Zeiten")]
-    [Tooltip("Zusätzliche Wartezeit nach Tür-zu (wenn du z.B. Sound ausklingen lassen willst)")]
     [SerializeField] private float delayAfterEntryDoorOpen = 0f;
-    [Tooltip("Wie lange der Bildschirm komplett schwarz bleibt bevor wieder aufgehellt wird.")]
     [SerializeField] private float blackHoldTime = 0.1f;
-    [Tooltip("Wartezeit nach Teleport bevor die obere Tür öffnet.")]
     [SerializeField] private float delayBeforeExitDoorOpens = 0.15f;
 
     [Header("Optionen")]
@@ -58,11 +55,9 @@ public class ElevatorDoorTrigger : MonoBehaviour
     {
         busy = true;
 
-        // Spieler Input aus
         player.GetComponent<Animator>().SetFloat("Speed", 0f);
         player.canMove = false;
 
-        // 1. Untere Tür öffnen (hochfahren)
         if (entryDoor)
         {
             if (!entryDoor.IsOpen && !entryDoor.IsMoving)
@@ -71,19 +66,14 @@ public class ElevatorDoorTrigger : MonoBehaviour
                 doorAudio?.Play();
             }
 
-            // Warten bis wirklich offen
             yield return StartCoroutine(WaitUntil(() => entryDoor.IsOpen && !entryDoor.IsMoving));
         }
 
         if (delayAfterEntryDoorOpen > 0f)
             yield return new WaitForSeconds(delayAfterEntryDoorOpen);
 
-        // 2. Fade zu schwarz
-        // ANPASSEN falls deine Fade-Methode anders heißt:
         yield return StartCoroutine(player.Fade(0f, 1f));
 
-        // 3. Kurzer Black Hold optional später (erst Teleport)
-        // Physik neutralisieren
         var rb = player.GetComponent<Rigidbody>();
         if (rb)
         {
@@ -91,18 +81,14 @@ public class ElevatorDoorTrigger : MonoBehaviour
             rb.angularVelocity = Vector3.zero;
         }
 
-        // Teleport
         player.transform.SetPositionAndRotation(destinationPoint.position, destinationPoint.rotation);
         player.SetSpawnPoint(destinationPoint);
 
         if (blackHoldTime > 0f)
             yield return new WaitForSeconds(blackHoldTime);
 
-        // 4. Fade zurück
-        // ANPASSEN falls anders:
         yield return StartCoroutine(player.Fade(1f, 0f));
 
-        // 5. Obere Tür öffnen
         if (exitDoor)
         {
             if (delayBeforeExitDoorOpens > 0f)
@@ -113,11 +99,8 @@ public class ElevatorDoorTrigger : MonoBehaviour
                 exitDoor.OpenExternally();
                 doorAudio?.Play();
             }
-            // Warten bis offen (nur wenn du willst)
-            // yield return StartCoroutine(WaitUntil(() => exitDoor.IsOpen && !exitDoor.IsMoving));
         }
 
-        // 6. Spieler wieder bewegen lassen
         player.canMove = true;
 
         if (!oneShot)

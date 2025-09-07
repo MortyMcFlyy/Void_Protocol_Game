@@ -9,7 +9,6 @@ public class PickupItem : MonoBehaviour, IInteractable
 
     public void Interact()
     {
-        // Inventar hinzufügen, Objekt entfernen
         Debug.Log($"{itemName} wurde aufgenommen.");
         playerGrappleScript.UnlockGrapple();
         Destroy(gameObject);

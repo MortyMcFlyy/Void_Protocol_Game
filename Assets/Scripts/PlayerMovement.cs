@@ -8,8 +8,8 @@ public class PlayerController : MonoBehaviour
 {
     public enum DeathType
     {
-        Acid,  // Killzone/Säure
-        Laser  // Laser
+        Acid,
+        Laser
     }
 
     [Header("Movement Settings")]
@@ -39,13 +39,12 @@ public class PlayerController : MonoBehaviour
     public float endGameFadeDuration = 5f;      
 
     [Header("Dissolve Effect")]
-    public Material dissolveMaterial;  // Hier "Mat_dissolve_Green" zuweisen
-    public Material laserDissolveMaterial;  // Hier "Mat_dissolve_Red" zuweisen
-    public Transform robotModel;       // ReRoboHookIdle Transform zuweisen
-    public float dissolveTime = 2.0f;  // Zeit für den Dissolve-Effekt
-    public DeathType currentDeathType;  // Speichert die aktuelle Todesursache
+    public Material dissolveMaterial;
+    public Material laserDissolveMaterial;
+    public Transform robotModel;
+    public float dissolveTime = 2.0f;
+    public DeathType currentDeathType;
 
-    // Speichere die Renderer und ihre ursprünglichen Materialien
     private Renderer[] characterParts;
     private Material[][] originalMaterials;
 
@@ -62,13 +61,11 @@ public class PlayerController : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
-        groundCheck.localPosition = new Vector3(0, -0.9f, 0); // Setze die Position des GroundChecks relativ zum Spieler
+        groundCheck.localPosition = new Vector3(0, -0.9f, 0);
         if (fadePanel != null)
         {
             fadePanel.alpha = 0f;
         }
-        
-        // Finde alle Renderer der Charakterteile und speichere ihre Materialien
         SetupDissolveComponents();
     }
 
@@ -81,31 +78,25 @@ public class PlayerController : MonoBehaviour
 
         if (!canMove) return;
 
-        // Bewegungseingaben erfassen
         float moveX = Input.GetAxis("Horizontal");
         float moveZ = Input.GetAxis("Vertical");
         movementInput = (transform.forward * moveZ + transform.right * moveX).normalized * moveSpeed;
 
-        // Sprunganforderung setzen
         if (Input.GetButtonDown("Jump") && IsGrounded())
         {
             jumpRequested = true;
         }
 
-        // Licht ein-/ausschalten
         if (Input.GetKeyDown(lightKey) && playerLight != null)
         {
             playerLight.enabled = !playerLight.enabled;
         }
-
-        //Animationsstatus aktualisieren
 
         animator.SetBool("isGrounded", IsGrounded());
 
         float moveMagnitude = new Vector2(moveX, moveZ).magnitude;
         animator.SetFloat("Speed", moveMagnitude);
 
-        // Sprung starten
         if (Input.GetButtonDown("Jump") && IsGrounded())
         {
             jumpRequested = true;
@@ -115,44 +106,39 @@ public class PlayerController : MonoBehaviour
         {
             animator.SetBool("isJumping", false);
         }
-        
-        // Debugging
-        //Debug.DrawRay(groundCheck.position, Vector3.down * 0.2f, Color.red);
     }
 
     void FixedUpdate()
     {
-    if (!canMove) return;
+        if (!canMove) return;
 
-    Vector3 currentVel = rb.linearVelocity;
+        Vector3 currentVel = rb.linearVelocity;
 
-    if (!grapple.IsGrappling())
-    {
-        Vector3 desiredXZ = movementInput + conveyorVelocity;
-        currentVel.x = desiredXZ.x;
-        currentVel.z = desiredXZ.z;
-        if (currentVel.magnitude > 0.1f && IsGrounded())
+        if (!grapple.IsGrappling())
         {
-            if (!walkSound.isPlaying)
+            Vector3 desiredXZ = movementInput + conveyorVelocity;
+            currentVel.x = desiredXZ.x;
+            currentVel.z = desiredXZ.z;
+            if (currentVel.magnitude > 0.1f && IsGrounded())
             {
-                walkSound.Play();
+                if (!walkSound.isPlaying)
+                {
+                    walkSound.Play();
+                }
             }
+            else
+            {
+                walkSound.Stop();
+            }
+            rb.linearVelocity = currentVel;
+
         }
-        else
+
+        if (jumpRequested)
         {
-            walkSound.Stop();
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            jumpRequested = false;
         }
-        rb.linearVelocity = currentVel;
-
-    }
-
-
-    // Springen
-    if (jumpRequested)
-    {
-        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        jumpRequested = false;
-    }
     }
 
 
@@ -181,7 +167,7 @@ public class PlayerController : MonoBehaviour
         if (((1 << collision.gameObject.layer) & killZone) != 0 && !isDead)
         {
             collision.gameObject.GetComponent<AudioSource>()?.Play();
-            Die(DeathType.Acid); // Explizit als Säure-Tod markieren
+            Die(DeathType.Acid);
         }
     }
 
@@ -190,23 +176,20 @@ public class PlayerController : MonoBehaviour
         if (((1 << other.gameObject.layer) & killZone) != 0 && !isDead)
         {
             other.gameObject.GetComponent<AudioSource>()?.Play();
-            Die(DeathType.Laser); // Explizit als Säure-Tod markieren
+            Die(DeathType.Laser);
         }
     }
 
-    // Füge den DeathType-Parameter hinzu
     public void Die(DeathType deathType = DeathType.Acid)
     {
         if (isDead) return;
         isDead = true;
-        currentDeathType = deathType;  // Speichere die Todesursache
+        currentDeathType = deathType;
         
         Debug.Log($"💀 Player ist gestorben! Ursache: {deathType}");
 
-        // Dissolve-Effekt starten
         StartCoroutine(PlayDissolveEffect());
         
-        // Coroutine statt Invoke, damit wir auch den Fade einbauen können
         StartCoroutine(FadeAndRespawn());
     }
     
@@ -219,20 +202,16 @@ public class PlayerController : MonoBehaviour
     {
         if (characterParts == null) yield break;
 
-        // Wähle das Material basierend auf der Todesursache
         Material effectMaterial = currentDeathType == DeathType.Laser && laserDissolveMaterial != null 
                                  ? laserDissolveMaterial 
                                  : dissolveMaterial;
         
         if (effectMaterial == null) yield break;
 
-        // Erstelle Instanz des ausgewählten Dissolve-Materials
         Material instancedDissolveMaterial = new Material(effectMaterial);
 
-        // Setze den Dissolve-Faktor auf 0
         instancedDissolveMaterial.SetFloat("_DissolveFactor", 0f);
 
-        // Wende das Material auf alle Teile an
         for (int i = 0; i < characterParts.Length; i++)
         {
             if (characterParts[i] != null)
@@ -246,7 +225,6 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // Animiere den Dissolve-Faktor von 0 zu 1
         float elapsed = 0f;
         while (elapsed < dissolveTime)
         {
@@ -259,19 +237,14 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator FadeAndRespawn()
     {
-        // Warte bis der Dissolve-Effekt teilweise abgeschlossen ist
         yield return new WaitForSeconds(dissolveTime * 0.5f);
         
-        // Bildschirm zu schwarz
         yield return StartCoroutine(Fade(0f, 1f));
 
-        // Warten während Schwarz
         yield return new WaitForSeconds(respawnDelay);
 
-        // Respawn durchführen
         Respawn();
 
-        // Schwarz wieder ausblenden
         yield return StartCoroutine(Fade(1f, 0f));
 
         isDead = false;
@@ -282,7 +255,6 @@ public class PlayerController : MonoBehaviour
         transform.position = spawnPoint.position;
         transform.rotation = spawnPoint.rotation;
 
-        // Falls der Spieler einen Rigidbody hat, Bewegungen zurücksetzen
         if (rb != null)
         {
             rb.isKinematic = false;
@@ -291,7 +263,6 @@ public class PlayerController : MonoBehaviour
         }
         canMove = true;
 
-        // Setze originale Materialien zurück
         RestoreOriginalMaterials();
 
         Debug.Log("🔄 Player respawned!");
@@ -323,7 +294,6 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Finde alle Renderer in den gewünschten Teilen
         string[] partNames = { "arms.001", "body.001", "hips.001", "lowerLegs.001", "upperLegs.001","eyeBeeg.001","eyeSmol.001" };
         characterParts = new Renderer[partNames.Length];
         originalMaterials = new Material[partNames.Length][];
@@ -337,7 +307,6 @@ public class PlayerController : MonoBehaviour
                 if (renderer != null)
                 {
                     characterParts[i] = renderer;
-                    // Sichere die originalen Materialien
                     originalMaterials[i] = new Material[renderer.materials.Length];
                     for (int j = 0; j < renderer.materials.Length; j++)
                     {

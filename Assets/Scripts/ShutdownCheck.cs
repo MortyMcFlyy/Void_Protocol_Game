@@ -14,7 +14,6 @@ public class ShutdownCheck : MonoBehaviour
     [SerializeField] private PlayerController playerController;
     [SerializeField] private bool end = false;
 
-    // Update is called once per frame
     void Update()
     {
         int solvedCount = 0;
@@ -29,7 +28,6 @@ public class ShutdownCheck : MonoBehaviour
         if (solvedCount >= numberOfTowers)
         {
             onOffSwitch = !onOffSwitch;
-            // Trigger shutdown sequence
             foreach (var tower in energyTowers)
             {
                 tower.GetComponent<Renderer>().material.SetColor("_EmissionColor", onOffSwitch ? Color.red : Color.clear);
