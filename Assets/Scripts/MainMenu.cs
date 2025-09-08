@@ -39,9 +39,8 @@ public class MainMenu : MonoBehaviour
 
     public void Play()
     {
-        Debug.Log("Play button clicked");
-        SceneManager.UnloadSceneAsync("Pause");
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        PauseMenuManager.Instance.OnPlayButtonPressed();
     }
 }

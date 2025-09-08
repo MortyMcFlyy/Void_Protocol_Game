@@ -158,7 +158,8 @@ public class PatrollingLaserEnemy : MonoBehaviour
 
         if (animator != null)
             animator.SetTrigger("Shoot");
-
+            
+        yield return new WaitForSeconds(5f);
         playerDetected = false;
     }
 
