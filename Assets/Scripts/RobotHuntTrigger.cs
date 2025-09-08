@@ -18,6 +18,7 @@ public class RobotHuntTrigger : MonoBehaviour
         {
             playerDetected = true;
             doorSound?.Play();
+            huntMusic?.Play();
             doorToOpen?.OpenExternally();
             foreach (var robot in robotsToActivate)
             {
